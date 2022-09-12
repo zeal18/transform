@@ -11,7 +11,8 @@ val settings = Seq(
   crossScalaVersions := Seq(versions.scala212, versions.scala213),
   scalacOptions ++= Seq(
     "-target:jvm-1.8",
-    "-encoding", "UTF-8",
+    "-encoding",
+    "UTF-8",
     "-unchecked",
     "-deprecation",
     "-explaintypes",
@@ -52,7 +53,7 @@ val settings = Seq(
         "-Xlint:unsound-match",
         "-Xlint:nullary-override"
       )
-    ),
+  ),
   Compile / console / scalacOptions --= Seq("-Ywarn-unused:imports", "-Xfatal-warnings")
 )
 
@@ -125,9 +126,7 @@ lazy val protos = crossProject(JSPlatform, JVMPlatform)
 lazy val protosJVM = protos.jvm
 lazy val protosJS = protos.js
 
-
 lazy val publishSettings = Seq(
-
   organization := "io.scalaland",
   homepage := Some(url("https://scalaland.io")),
   licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
@@ -158,3 +157,5 @@ lazy val publishSettings = Seq(
 
 lazy val noPublishSettings =
   Seq(publish / skip := true, publishArtifact := false)
+
+addCommandAlias("check", "all scalafmtSbtCheck; scalafmtCheck; Test / scalafmtCheck")
