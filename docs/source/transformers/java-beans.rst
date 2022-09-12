@@ -1,13 +1,13 @@
 Java beans
 ==========
 
-Beside Scala case classes, Chimney supports transformation
+Beside Scala case classes, the Transform supports transformation
 of Java beans.
 
 Reading from Java beans
 -----------------------
 
-Chimney supports automatic field renaming for classes that
+The Transform supports automatic field renaming for classes that
 follow Java beans naming convention. Let's assume
 the following classes.
 
@@ -37,7 +37,7 @@ The conversion works only if you explicitly enable it with
 
 .. note::
 
-  Chimney matches accessor methods solely based on name and
+  The Transform matches accessor methods solely based on name and
   return type, and has no way of ensuring that a method named
   similarly to a getter is idempotent and does not actually
   perform side effects in its body.
@@ -46,14 +46,14 @@ The conversion works only if you explicitly enable it with
 Writing to Java beans
 ---------------------
 
-Dual to reading, Chimney supports transforming types into Java beans.
+Dual to reading, the Transform supports transforming types into Java beans.
 
-Chimney considers as bean a class that:
+The Transform considers as bean a class that:
 
 - primary constructor is public and parameter-less
 - contains at least one, single-parameter setter method that returns ``Unit``
 
-Chimney will then require data sources for all such setters.
+The Transform will then require data sources for all such setters.
 
 .. code-block:: scala
 
@@ -82,7 +82,7 @@ The conversion works if you explicitly enable it with ``.enableBeanSetters``.
     .enableBeanSetters
     .transform
 
-Chimney generates code equivalent to:
+The Transform generates code equivalent to:
 
 .. code-block:: scala
 

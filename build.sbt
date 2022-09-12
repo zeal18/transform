@@ -71,15 +71,15 @@ lazy val root = project
   .in(file("."))
   .settings(settings*)
   .settings(noPublishSettings*)
-  .aggregate(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
-  .dependsOn(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
+  .aggregate(transformJVM, transformJS, transformCatsJVM, transformCatsJS)
+  .dependsOn(transformJVM, transformJS, transformCatsJVM, transformCatsJS)
 
-lazy val chimney = crossProject(JSPlatform, JVMPlatform)
+lazy val transform = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .dependsOn(protos % "test->test")
   .settings(
-    moduleName  := "chimney",
-    name        := "chimney",
+    moduleName  := "transform",
+    name        := "transform",
     description := "Scala library for boilerplate free data rewriting",
     testFrameworks += new TestFramework("utest.runner.Framework"),
     addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
@@ -88,16 +88,16 @@ lazy val chimney = crossProject(JSPlatform, JVMPlatform)
   .settings(publishSettings*)
   .settings(dependencies*)
 
-lazy val chimneyJVM = chimney.jvm
-lazy val chimneyJS  = chimney.js
+lazy val transformJVM = transform.jvm
+lazy val transformJS  = transform.js
 
-lazy val chimneyCats = crossProject(JSPlatform, JVMPlatform)
+lazy val transformCats = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
-  .dependsOn(chimney % "test->test;compile->compile")
+  .dependsOn(transform % "test->test;compile->compile")
   .settings(
-    moduleName  := "chimney-cats",
-    name        := "chimney-cats",
-    description := "Chimney module for validated transformers support",
+    moduleName  := "transform-cats",
+    name        := "transform-cats",
+    description := "Transform module for validated transformers support",
     testFrameworks += new TestFramework("utest.runner.Framework"),
     addCompilerPlugin("org.typelevel" % "kind-projector" % "0.13.2" cross CrossVersion.full),
   )
@@ -106,14 +106,14 @@ lazy val chimneyCats = crossProject(JSPlatform, JVMPlatform)
   .settings(dependencies*)
   .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "2.8.0" % "provided")
 
-lazy val chimneyCatsJVM = chimneyCats.jvm
-lazy val chimneyCatsJS  = chimneyCats.js
+lazy val transformCatsJVM = transformCats.jvm
+lazy val transformCatsJS  = transformCats.js
 
 lazy val protos = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
   .settings(
-    moduleName := "chimney-protos",
-    name       := "chimney-protos",
+    moduleName := "transform-protos",
+    name       := "transform-protos",
   )
   .settings(settings*)
   .settings(noPublishSettings*)

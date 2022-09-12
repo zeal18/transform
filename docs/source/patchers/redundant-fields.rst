@@ -2,7 +2,7 @@ Redundant fields in patchers
 ============================
 
 When patch case class contains a field that does not exist
-in patched object, Chimney will not be able to generate patcher.
+in patched object, the Transform will not be able to generate patcher.
 
 .. code-block:: scala
 

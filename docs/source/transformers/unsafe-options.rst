@@ -1,7 +1,7 @@
 Unsafe options transformation
 =============================
 
-Chimney supports opt-in unsafe transformation from ``Option[T]`` to
+The Transform supports opt-in unsafe transformation from ``Option[T]`` to
 ``T`` if enabled explicitly with ``.enableUnsafeOption``.
 
 .. warning::

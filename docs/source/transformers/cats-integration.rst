@@ -3,22 +3,22 @@
 Cats integration
 ================
 
-Chimney provides `Cats <https://typelevel.org/cats>`_ library integration module.
+The Transform provides `Cats <https://typelevel.org/cats>`_ library integration module.
 To include it to your SBT project, add the following line to your ``build.sbt``:
 
 .. parsed-literal::
 
-  libraryDependencies += "io.scalaland" %% "chimney-cats" % "|version|"
+  libraryDependencies += "io.github.zeal18" %% "transform-cats" % "|version|"
 
 The module is released for Scala 2.12.x and 2.13.x and cats 2.2.0.
 If you want to use it with Scala.js, you need to replace ``%%`` with ``%%%``.
 
-The module provides package ``io.scalaland.chimney.cats`` with all the goodies
+The module provides package ``io.github.zeal18.transform.cats`` with all the goodies
 described here.
 
 .. important::
 
-  You need to import ``io.scalaland.chimney.cats._`` in order to support
+  You need to import ``io.github.zeal18.transform.cats._`` in order to support
   the ``Validated`` and ``Ior`` datatypes for lifted transformers.
 
 .. _cats-validated:
@@ -26,7 +26,7 @@ described here.
 ``Validated`` support for lifted transformers
 ---------------------------------------------
 
-Through Chimney cats integration module, you obtain support for
+Through the Transform cats integration module, you obtain support for
 ``Validated[EE, +*]``, as the wrapper type for lifted transformers, where:
 
 - ``EE`` - type of an error channel
@@ -39,7 +39,7 @@ Let's look at the following example.
 
 .. code-block:: scala
 
-  import io.scalaland.chimney.cats._
+  import io.github.zeal18.transform.cats._
   import cats.data.{NonEmptyChain, Validated}
 
   case class RegistrationForm(email: String,
@@ -104,7 +104,7 @@ Now let's try to use lifted transformers defined above.
 
 ``Ior`` support for lifted transformers
 ---------------------------------------
-Like ``Validated[EE, +*]``, the Chimney cats integration module also supports 
+Like ``Validated[EE, +*]``, the the Transform cats integration module also supports 
 `Ior[EE, +*] <https://typelevel.org/cats/datatypes/ior.html>`_ where:
 
 - ``EE`` - type of an error channel
@@ -117,7 +117,7 @@ Let's look at the following example:
 
 .. code-block:: scala
 
-  import io.scalaland.chimney.cats._
+  import io.github.zeal18.transform.cats._
   import cats.data.NonEmptyChain
 
   case class RegistrationForm(email: String,
@@ -207,7 +207,7 @@ result with warnings (``Both``).
 Error path support for cats-based transformers
 ----------------------------------------------
 
-Chimney provides instance of ``TransformerFErrorPathSupport`` for ``F[_]``
+The Transform provides instance of ``TransformerFErrorPathSupport`` for ``F[_]``
 if there is ``ApplicativeError[F, EE[TransformationError[M]]]`` instance and
 ``Applicative[E]`` instance.
 
@@ -219,9 +219,9 @@ Let's look to example based on ``ValidatedNec[TransformationError[M], +*]``
 
 .. code-block:: scala
 
-  import io.scalaland.chimney.cats._
-  import io.scalaland.chimney.dsl._
-  import io.scalaland.chimney.{TransformationError, TransformerF}
+  import io.github.zeal18.transform.cats._
+  import io.github.zeal18.transform.dsl._
+  import io.github.zeal18.transform.{TransformationError, TransformerF}
   import cats.data.{NonEmptyChain, Validated, ValidatedNec}
 
   import scala.util.Try

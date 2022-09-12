@@ -20,12 +20,12 @@ new ``wingsColor`` field.
 
   val stevie = Catterpillar(5, "Steve")
   val steve = stevie.transformInto[Butterfly]
-  // error: Chimney can't derive transformation from Catterpillar to Butterfly
+  // error: The Transform can't derive transformation from Catterpillar to Butterfly
   //
   // Butterfly
   //   wingsColor: String - no accessor named wingsColor in source type Catterpillar
   //
-  // Consult https://scalalandio.github.io/chimney for usage examples.
+  // Consult https://github.com/zeal18/transform/tree/main/docs for usage examples.
   //
   //        val steve = stevie.transformInto[Butterfly]
   //
@@ -34,7 +34,7 @@ new ``wingsColor`` field.
 Providing missing values
 ------------------------
 
-In this scenario, we can use Chimney's syntax to provide a missing value.
+In this scenario, we can use the Transform's syntax to provide a missing value.
 Notice that ``transformInto[T]`` is a shortcut for ``into[T].transform``,
 where the latter form allow us to provide additional transformation rules.
 
@@ -82,10 +82,10 @@ performed renaming.
 Using method accessors
 ----------------------
 
-By default, Chimney will only consider ``val`` and ``lazy val`` defined within the source type,
+By default, the Transform will only consider ``val`` and ``lazy val`` defined within the source type,
 because methods may perform side effects (e.g. mutation some state in the source object).
 
-You can ask Chimney to consider methods with ``.enableMethodAccessors``. Note that only methods that are public
+You can ask the Transform to consider methods with ``.enableMethodAccessors``. Note that only methods that are public
 and have no parameter list are considered.
 
 .. code-block:: scala
@@ -105,7 +105,7 @@ and have no parameter list are considered.
 Transforming coproducts
 -----------------------
 
-With Chimney you can not only transform case classes, but
+With the Transform you can not only transform case classes, but
 sealed trait hierarchies (also known as coproducts) as well.
 Consider two following hierarchy definitions.
 
@@ -140,12 +140,12 @@ How about other way round?
 .. code-block:: scala
 
   chanRed.transformInto[Color]
-  // error: Chimney can't derive transformation from Channel to Color
+  // error: The Transform can't derive transformation from Channel to Color
   //
   // Color
   //   can't transform coproduct instance Channel.Alpha to Color
   //
-  // Consult https://scalalandio.github.io/chimney for usage examples.
+  // Consult https://github.com/zeal18/transform/tree/main/docs for usage examples.
   //
   //        chanRed.transformInto[Color]
   //                             ^
@@ -171,7 +171,7 @@ do that. Let's convert any ``Channel.Alpha`` to ``Color.Blue``.
   // blue: Color = Blue
 
 
-After providing a default, Chimney can prove the transformation
+After providing a default, the Transform can prove the transformation
 is total and use provided function, when it's needed.
 
 Transformations between flat sealed trait hierarchies and deep trait

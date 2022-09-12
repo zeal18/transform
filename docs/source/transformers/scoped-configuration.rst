@@ -3,7 +3,7 @@
 Providing scoped configuration
 ==============================
 
-Chimney is highly configurable and has some transformer derivation rules that
+The Transform is highly configurable and has some transformer derivation rules that
 can be switched on/off on demand, for each specific transformation. However sometimes
 you may find yourself enabling (or disabling) the same flags for majority of
 transformations in your project. This is when you may consider using providing
@@ -48,7 +48,7 @@ in implicit scope.
     (new Source).transformInto[Target]
     // Target(100, None)
 
-Then, in scope where ``TransformerConfiguration`` is available, Chimney is able to
+Then, in scope where ``TransformerConfiguration`` is available, the Transform is able to
 pick it up as a base configuration for transformer derivation. This way you can define
 your default transformers ruleset for your module or project.
 
@@ -68,7 +68,7 @@ Use-site override of scoped configuration is still possible, as in the following
         .into[Target]
         .disableMethodAccessors
         .transform
-    // error: Chimney can't derive transformation from Source to Target
+    // error: The Transform can't derive transformation from Source to Target
     // Target
     //   field1: scala.Int - no accessor named field1 in source type Source
 
