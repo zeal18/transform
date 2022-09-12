@@ -49,3 +49,28 @@ jobs:
           check-latest: true
       - name: Run tests
         run: sbt ++${{ matrix.scala }}! compile chimneyJS/test chimneyJVM/test
+
+  publish:
+    runs-on: ubuntu-20.04
+    needs: [lint, test]
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache scala dependencies
+        uses: coursier/cache-action@v6
+      - name: Setup Java
+        uses: actions/setup-java@v2.5.0
+        with:
+          distribution: temurin
+          java-version: 17
+          check-latest: true
+      - name: Release artifacts
+        run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
