@@ -8,7 +8,6 @@ val versions = new {
 }
 
 val settings = Seq(
-  version            := "0.6.2",
   scalaVersion       := versions.scala213,
   crossScalaVersions := Seq(versions.scala212, versions.scala213),
   scalacOptions ++= Seq(
@@ -71,7 +70,6 @@ val dependencies = Seq(
 lazy val root = project
   .in(file("."))
   .settings(settings*)
-  .settings(publishSettings*)
   .settings(noPublishSettings*)
   .aggregate(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
   .dependsOn(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
@@ -130,31 +128,18 @@ lazy val protosJVM = protos.jvm
 lazy val protosJS  = protos.js
 
 lazy val publishSettings = Seq(
-  organization := "io.scalaland",
-  homepage     := Some(url("https://scalaland.io")),
-  licenses     := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  scmInfo := Some(
-    ScmInfo(url("https://github.com/scalalandio/chimney"), "scm:git:git@github.com:scalalandio/chimney.git"),
-  ),
-  publishTo              := sonatypePublishToBundle.value,
-  publishMavenStyle      := true,
-  Test / publishArtifact := false,
-  pomIncludeRepository := { _ =>
-    false
-  },
-  pomExtra := (
-    <developers>
-      <developer>
-        <id>krzemin</id>
-        <name>Piotr Krzemiński</name>
-        <url>http://github.com/krzemin</url>
-      </developer>
-      <developer>
-        <id>MateuszKubuszok</id>
-        <name>Mateusz Kubuszok</name>
-        <url>http://github.com/MateuszKubuszok</url>
-      </developer>
-    </developers>
+  organization           := "io.github.zeal18",
+  homepage               := Some(url("https://github.com/zeal18/transform")),
+  licenses               := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  sonatypeCredentialHost := "s01.oss.sonatype.org",
+  sonatypeRepository     := "https://s01.oss.sonatype.org/service/local",
+  developers := List(
+    Developer(
+      "zeal18",
+      "Aleksei Lezhoev",
+      "lezhoev@gmail.com",
+      url("https://github.com/zeal18"),
+    ),
   ),
 )
 
