@@ -1,7 +1,7 @@
 Default values support
 ======================
 
-Chimney respects case classes' default values as a possible target
+The Transform respects case classes' default values as a possible target
 field value source.
 
 Automatic value provision
@@ -42,12 +42,12 @@ lookup for default values and require them always to be passed explicitly.
     .into[Butterfly]
     .disableDefaultValues
     .transform
-  // error: Chimney can't derive transformation from Catterpillar to Butterfly
+  // error: The Transform can't derive transformation from Catterpillar to Butterfly
   //
   // Butterfly
   //   wingsColor: String - no field named wingsColor in source type Catterpillar
   //
-  // Consult https://scalalandio.github.io/chimney for usage examples.
+  // Consult https://github.com/zeal18/transform/tree/main/docs for usage examples.
   //
   //            .transform
   //            ^
@@ -92,7 +92,7 @@ this behavior by using ``.enableOptionDefaultsToNone`` operation.
 Default values for ``Unit`` fields
 ----------------------------------
 
-Having a target case class type that contains a field of type ``Unit``, Chimney
+Having a target case class type that contains a field of type ``Unit``, the Transform
 is able to automatically fill  with unit value (``()``).
 
 .. code-block:: scala

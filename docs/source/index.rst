@@ -1,7 +1,7 @@
-Welcome to Chimney's documentation!
+Welcome to the Transform's documentation!
 ===================================
 
-**Chimney** is a Scala library for boilerplate-free data transformations.
+**Transform** is a Scala library for boilerplate-free data transformations.
 
 Transformers
 ------------
@@ -41,12 +41,12 @@ of such boilerplate, especially when:
   types like ``Int`` or ``String``, while you'd prefer to use value objects
   in you domain-level code to improve type-safety and readability
 
-Chimney provides a compact DSL with which you can define transformation
+The Transform provides a compact DSL with which you can define transformation
 rules and transform your objects with as little boilerplate as possible.
 
 .. code-block:: scala
 
-  import io.scalaland.chimney.dsl._
+  import io.github.zeal18.transform.dsl._
 
   val event = command.into[CoffeeMade]
     .withFieldComputed(_.at, _ => ZonedDateTime.now)
@@ -56,12 +56,12 @@ rules and transform your objects with as little boilerplate as possible.
 
 
 Read :ref:`Getting started with transformers` to learn more about
-Chimney's transformers.
+The Transform's transformers.
 
 Patching
 --------
 
-Beside transformers, Chimney supports case class patching as well.
+Beside transformers, the Transform supports case class patching as well.
 It's a bit different type of transformation which happens when you
 hold an object of some type and want to modify only subset of its
 fields with values taken from other (*patch*) object.
@@ -78,12 +78,12 @@ fields with values taken from other (*patch*) object.
   // User(10, "xyz@example.com", "Broadway", 123123123L)
 
 Read :ref:`Getting started with patchers` to learn more about
-Chimney's patchers.
+The Transform's patchers.
 
-Chimney's features
+The Transform's features
 ------------------
 
-Chimney uses Scala macros to give you:
+The Transform uses Scala macros to give you:
 
 - type-safety at compile-time
 - fast generated code, almost equivalent to hand-written version

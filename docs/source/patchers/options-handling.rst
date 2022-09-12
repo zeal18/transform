@@ -59,7 +59,7 @@ with a ``None``, we can do two things:
 - or ignore updating this particular field (as in previous section)
 
 Both choices may have perfect sense, depending on the context.
-By default, Chimney does the former (clears the value), but it
+By default, the Transform does the former (clears the value), but it
 also gives a simple way to always ignore ``None`` from patch
 with ``.ignoreNoneInPatch`` operation.
 

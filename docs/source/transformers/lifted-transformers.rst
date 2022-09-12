@@ -3,7 +3,7 @@
 Lifted transformers
 ===================
 
-While Chimney transformers wrap total functions of type ``From => To``, they don't
+While the Transform transformers wrap total functions of type ``From => To``, they don't
 really support partial transformations, where depending on the input value, transformation
 may `succeed` or `fail`.
 
@@ -40,7 +40,7 @@ by :ref:`transformerf-type-class` come into play.
 There are few differences to total transformers in the example above:
 
 1. Instead of ``into[RegisteredUser]``, we use ``intoF[Option, RegisteredUser]``, which
-   tells Chimney that ``Option`` type will be used for handling partial transformations.
+   tells the Transform that ``Option`` type will be used for handling partial transformations.
 2. Instead of ``withFieldComputed``, we use ``withFieldComputedF``, where second parameter
    is a function that wraps result into a type constructor provided in `(1)` - ``Option``
    in this case.
@@ -102,7 +102,7 @@ Capturing validation errors
 Usually, when partial transformation failed, we would like to know `why` it failed.
 Thus, we must use different wrapper type than ``Option`` that allows to capture error information.
 
-Chimney supports out of the box ``Either[C[E], +*]``, as the wrapper type, where
+The Transform supports out of the box ``Either[C[E], +*]``, as the wrapper type, where
 
 - ``E`` - type of a single error occurrence
 - ``C[_]`` - collection type to store all the transformation errors (like ``Seq``, ``Vector``, ``List``, etc.)
@@ -196,7 +196,7 @@ registered users, wrapped in ``Right``.
    Note that collection type where you gather errors is independent of
    any eventual collection types that takes part in the transformation.
 
-   For ``Either`` wrappers, Chimney supports practically any Scala standard collection
+   For ``Either`` wrappers, the Transform supports practically any Scala standard collection
    type, but depending on your choice, you may obtain different performance characteristics.
    Thus, collections with reasonably fast concatenation should be preferred on the
    error channel.
@@ -211,7 +211,7 @@ interested in :ref:`cats-validated`.
 ``TransformerF`` type class
 ---------------------------
 
-Similar to the :ref:`transformer-typeclass`, Chimney defines a ``TransformerF`` type class,
+Similar to the :ref:`transformer-typeclass`, the Transform defines a ``TransformerF`` type class,
 which allows to express partial (`lifted`, `wrapped`) transformation of type ``From => F[To]``.
 
 .. code-block:: scala
@@ -242,7 +242,7 @@ is also supported for lifted transformers. This especially means:
 Supporting custom ``F[_]``
 --------------------------
 
-Chimney provides pluggable interface that allows you to use your own
+The Transform provides pluggable interface that allows you to use your own
 ``F[_]`` type constructor in lifted transformations.
 
 The library defines ``TransformerFSupport`` type class, as follows.
@@ -258,7 +258,7 @@ The library defines ``TransformerFSupport`` type class, as follows.
 
 .. important::
 
-  Chimney macros, during lifted transformer derivation, resolve implicit instance
+  The Transform macros, during lifted transformer derivation, resolve implicit instance
   of ``TransformerFSupport`` for requested wrapper type constructor and use it
   in various places in emitted code.
 
@@ -269,7 +269,7 @@ For those familiar with `applicative functors` and `traversable` type classes,
 implementation of these methods should be obvious. Yet it gives some choice about
 semantics of error handling.
 
-Chimney supports ``Option``, ``Either`` and ``cats.data.Validated``
+The Transform supports ``Option``, ``Either`` and ``cats.data.Validated``
 (in :ref:`cats-integration`) just exactly by providing implicit instaces of
 ``TransformerFSupport`` implemented for those wrapper types.
 
@@ -282,7 +282,7 @@ Error path support
     Support for enhanced error paths is currently an experimental feature and we don't
     guarantee it will be included in the next library versions in the same shape.
 
-Chimney provides ability to trace errors in lifted transformers.
+The Transform provides ability to trace errors in lifted transformers.
 For using it you need to implement an instance of ``TransformerFErrorPathSupport``
 
 .. code-block:: scala
@@ -297,10 +297,10 @@ There are 4 different types of of ``ErrorPathNode``:
     - ``MapKey`` for map key
     - ``MapValue`` for map value
 
-In case if Chimney can resolve instance of ``TransformerFErrorPathSupport`` in scope of your
+In case if the Transform can resolve instance of ``TransformerFErrorPathSupport`` in scope of your
 lifted transformer, each error in transformation will contain path of nodes to error location
 
-Out of box Chimney contains instance for Either[C[TransformationError[M]], +*], where
+Out of box the Transform contains instance for Either[C[TransformationError[M]], +*], where
     - ``M`` - type of error message
     - ``C[_]`` - collection type to store all the transformation errors (like Seq, Vector, List, etc.)
     - ``TransformationError`` - default implementation of error containing path

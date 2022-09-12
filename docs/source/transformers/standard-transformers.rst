@@ -3,14 +3,14 @@
 Standard transformers
 =====================
 
-Chimney provides several out of the box transformer generation
+The Transform provides several out of the box transformer generation
 rules, which can be applied in any nested context.
 
 
 Identity transformation
 -----------------------
 
-Given any type ``T``, Chimney is able to derive identity
+Given any type ``T``, the Transform is able to derive identity
 transformer: ``Transformer[T, T]``.
 
 .. code-block:: scala
@@ -25,7 +25,7 @@ Supertype transformation
 ------------------------
 
 Given any types ``T`` and ``U`` such that ``T <: U``
-(``T`` is subtype of ``U``), Chimney is able to derive supertype
+(``T`` is subtype of ``U``), the Transform is able to derive supertype
 transformer: ``Transformer[T, U]``.
 
 .. code-block:: scala
@@ -39,7 +39,7 @@ transformer: ``Transformer[T, U]``.
 Value classes
 -------------
 
-As nowadays value classes tends to be relatively widely pervasive, Chimney handles
+As nowadays value classes tends to be relatively widely pervasive, the Transform handles
 them in a special way, supporting automatic value class field extraction and wrapping.
 
 .. code-block:: scala
@@ -63,8 +63,8 @@ them in a special way, supporting automatic value class field extraction and wra
 Options
 -------
 
-Given any types ``T``, ``U`` such that there exists Chimney
-transformer between them (``Transformer[T, U]``), Chimney is able
+Given any types ``T``, ``U`` such that there exists the Transform
+transformer between them (``Transformer[T, U]``), the Transform is able
 to derive ``Transformer[Option[T], Option[U]]``.
 
 .. code-block:: scala
@@ -94,8 +94,8 @@ Collections
 -----------
 
 Given any collection types ``C1[_]`` and ``C2[_]``, and types ``T``, ``U``
-such that there exists Chimney transformer between them (``Transformer[T, U]``),
-Chimney is able to derive ``Transformer[C1[T], C2[U]]``.
+such that there exists the Transform transformer between them (``Transformer[T, U]``),
+the Transform is able to derive ``Transformer[C1[T], C2[U]]``.
 
 .. code-block:: scala
 
@@ -116,7 +116,7 @@ Maps
 
 Given any collection types ``K1``, ``K2``, ``V1``, ``V2`` such that there
 exist transformers ``Transformer[K1, K2]`` and ``Transformer[V1, V2]``,
-Chimney is able to derive ``Transformer[Map[K1, V1], Map[K2, V2]]``.
+the Transform is able to derive ``Transformer[Map[K1, V1], Map[K2, V2]]``.
 
 .. code-block:: scala
 
@@ -132,7 +132,7 @@ Either
 
 Given any collection types ``L1``, ``L2``, ``R1``, ``R2`` such that there
 exist transformers ``Transformer[L1, L2]`` and ``Transformer[R1, R2]``,
-Chimney is able to derive ``Transformer[Either[L1, R1], Either[L2, R2]]``.
+the Transform is able to derive ``Transformer[Either[L1, R1], Either[L2, R2]]``.
 
 .. code-block:: scala
 

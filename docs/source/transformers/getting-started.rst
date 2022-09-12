@@ -1,7 +1,7 @@
 Getting started with transformers
 =================================
 
-In this section you will learn how to use Chimney transformers
+In this section you will learn how to use the Transform transformers
 example by example.
 
 Basic transformations
@@ -34,7 +34,7 @@ involving traversal on nested collection.
   val highschool = kindergarden.transformInto[Adults]
   // Adults(List(Butterfly(5, "Steve"), Butterfly(4, "Joe"))
 
-We can use it as long as Chimney can recursively construct transformation
+We can use it as long as the Transform can recursively construct transformation
 for all fields of a target object. In this example transformer for
 ``List`` type is constructed basing on automatically derived
 ``Catterpillar -> Butterfly`` mapping.

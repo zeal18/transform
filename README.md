@@ -1,10 +1,11 @@
-# Chimney <img src="chimney.png" alt="Chimney logo" width="64" />
+# Transform
 
-![CI build](https://github.com/scalalandio/chimney/workflows/CI%20build/badge.svg)
-[![Maven Central](https://img.shields.io/maven-central/v/io.scalaland/chimney_2.12.svg)](http://search.maven.org/#search%7Cga%7C1%7Cchimney)
-[![Javadocs](https://www.javadoc.io/badge/io.scalaland/chimney_2.13.svg?color=red&label=scaladoc)](https://www.javadoc.io/doc/io.scalaland/chimney_2.13/latest/io/scalaland/chimney/index.html)
-[![codecov.io](http://codecov.io/github/scalalandio/chimney/coverage.svg?branch=master)](http://codecov.io/github/scalalandio/chimney?branch=master)
-[![License](http://img.shields.io/:license-Apache%202-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt) [![Join the chat at https://gitter.im/scalalandio/chimney](https://badges.gitter.im/scalalandio/chimney.svg)](https://gitter.im/scalalandio/chimney?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+The library is a fork of the [Chimney](https://github.com/scalalandio/chimney) aiming development continuation and Scala 3 support.
+
+![CI](https://github.com/zeal18/transform/actions/workflows/ci.yml/badge.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.zeal18/transform_2.13.svg)](https://search.maven.org/search?q=g:io.github.zeal18%20AND%20a:transform*)
+[![Javadocs](https://www.javadoc.io/badge/io.github.zeal18/transform_2.13.svg?color=red&label=scaladoc)](https://www.javadoc.io/doc/io.github.zeal18/transform_2.13/latest/io/github/zeal18/transform/index.html)
+[![License](http://img.shields.io/:license-Apache%202-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
 [![Scala.js](https://www.scala-js.org/assets/badges/scalajs-1.0.0.svg)](https://www.scala-js.org)
 
 Battle tested Scala library for boilerplate-free data transformations.
@@ -39,11 +40,11 @@ of such boilerplate, especially when:
   and readability  
 
 
-Chimney provides a compact DSL with which you can define transformation
+Transform provides a compact DSL with which you can define transformation
 rules and transform your objects with as little boilerplate as possible.
 
 ```scala
-import io.scalaland.chimney.dsl._
+import io.github.zeal18.transform.dsl._
 
 val event = command.into[CoffeeMade]
   .withFieldComputed(_.at, _ => ZonedDateTime.now)
@@ -59,62 +60,14 @@ Underneath it uses Scala macros to give you:
 
 ## Getting started
 
-To include Chimney to your SBT project, add the following line to your `build.sbt`:
+To include Transform to your SBT project, add the following line to your `build.sbt`:
 
 ```scala
-libraryDependencies += "io.scalaland" %% "chimney" % "0.6.2"
+libraryDependencies += "io.github.zeal18" %% "transform" % "<version>"
 ```
 
-Library is released for Scala 2.12.x and 2.13.x.
+Library is released for Scala 2.12.x and 2.13.x, Scala 3 support is under development.
 
 If you want to use it with Scala.js, you need to replace `%%` with `%%%`.
 Due to some [compiler bugs](https://issues.scala-lang.org/browse/SI-7046),
 it's recommended to use at least Scala 2.12.1.
-
-### Trying with Ammonite REPL
-
-The quickest way to try out Chimney is to use a script that downloads
-[coursier](https://github.com/alexarchambault/coursier) and uses it to fetch
-[Ammonite](https://github.com/lihaoyi/Ammonite) REPL with the latest version
-of Chimney. It drops you immediately into a REPL session.
-
-```
-curl -s https://raw.githubusercontent.com/scalalandio/chimney/master/try-chimney.sh | bash
-Loading...
-Welcome to the Ammonite Repl 1.1.0
-(Scala 2.12.4 Java 1.8.0_152)
-If you like Ammonite, please support our development at www.patreon.com/lihaoyi
-@ case class Foo(x: String, y: Int) 
-defined class Foo
-
-@ case class Bar(x: String, y: Int, z: Boolean = true) 
-defined class Bar
-
-@ Foo("abc", 10).transformInto[Bar] 
-res2: Bar = Bar("abc", 10, true)
-```
-
-## Documentation
-
-Chimney documentation is available at https://scalalandio.github.io/chimney
-
-#### Building documentation locally
-
-In order to build documentation locally, you need to install
-[Sphinx](https://www.sphinx-doc.org) documentation generator first.
-
-Then in project's root directory run command:
-
-```
-sbt makeSite
-```
-
-HTML Documentation should be generated at `target/sphinx/html/index.html`.
-
-
-## Thanks
-
-Thanks to [JProfiler (Java profiler)](https://www.ej-technologies.com/products/jprofiler/overview.html)
-for helping us develop the library and allowing us to use it during development.
-
-Thanks to [SwissBorg](https://swissborg.com) for sponsoring the development time for this project.

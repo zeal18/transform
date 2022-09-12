@@ -1,7 +1,7 @@
 Getting started with patchers
 =============================
 
-Chimney supports case class patching. It is a bit different type
+The Transform supports case class patching. It is a bit different type
 of transformation when you hold an object of some type, but want
 to modify only subset of fields.
 
@@ -28,6 +28,6 @@ of type ``User``.
 
 Notice that when using patchers, we rely on standard transformers'
 derivation rules. In this case we used value classes in the
-``User`` model, but plain values in update form. Chimney was
+``User`` model, but plain values in update form. The Transform was
 able to derive transformers for each patched field, so it was
 able to successfully derive a patcher.

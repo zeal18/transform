@@ -2,9 +2,9 @@ Plugging in own transformations
 ===============================
 
 In case the transformation is relatively complex or if for
-some reason you just want to bypass Chimney derivation mechanism,
+some reason you just want to bypass the Transform derivation mechanism,
 you can always fall back to a simple function that you can plug
-into the Chimney transformation.
+into the the Transform transformation.
 
 
 .. _transformer-typeclass:
@@ -27,8 +27,8 @@ instance in a local context.
 
 .. code-block:: scala
 
-  import io.scalaland.chimney.dsl._
-  import io.scalaland.chimney.Transformer
+  import io.github.zeal18.transform.dsl._
+  import io.github.zeal18.transform.Transformer
 
   object v1 {
     case class User(id: Int, name: String, street: String, postalCode: String)
@@ -56,7 +56,7 @@ instance in a local context.
   //   v2.User(2, "Anna", List(Address("Broadway", "00321")))
   // )
 
-As we can see, Chimney correctly picked and used implicit
+As we can see, the Transform correctly picked and used implicit
 ``Transformer[v1.User, v2.User]`` defined locally in transformation
 between list of users.
 
@@ -70,7 +70,7 @@ Transformer definition DSL
 --------------------------
 
 One can think that if we only need to provide function implementation
-of type ``v1.User => v2.User``, why not use Chimney's DSL in order
+of type ``v1.User => v2.User``, why not use the Transform's DSL in order
 to generate the transformation?
 
 .. code-block:: scala
@@ -83,7 +83,7 @@ to generate the transformation?
 
 .. warning:: While it looks reasonably, it will not work as expected :(
 
-Chimney's macro, before trying to derive any transformer, tries to
+The Transform's macro, before trying to derive any transformer, tries to
 find instance of required transformer in implicit scope. Unfortunately,
 it will pick ``userV2toV2``, because types match, this value is
 marked as implicit and is available in macro expansion scope. Depending
@@ -110,14 +110,14 @@ in place), but ``buildTransformer`` (because we generate
 transformer here). Such generated transformer is semantically
 equivalent to hand-written transformer from previous section.
 
-Chimney solves self reference implicit problem by not looking
+The Transform solves self reference implicit problem by not looking
 for implicit instance for ``Transformer[From, To]`` when
 using transformer builder  ``Transformer.define[From, To]``.
 
 Recursive data types support
 ----------------------------
 
-Chimney can generate transformers between recursive data structures.
+The Transform can generate transformers between recursive data structures.
 Consider following example.
 
 .. code-block:: scala
