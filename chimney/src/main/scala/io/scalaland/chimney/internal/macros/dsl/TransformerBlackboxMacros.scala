@@ -2,66 +2,65 @@ package io.scalaland.chimney.internal.macros.dsl
 
 import io.scalaland.chimney
 import io.scalaland.chimney.internal.macros.TransformerMacros
-import io.scalaland.chimney.{TransformerF, TransformerFSupport}
+import io.scalaland.chimney.TransformerF
+import io.scalaland.chimney.TransformerFSupport
 
 import scala.annotation.unused
 import scala.reflect.macros.blackbox
 
 class TransformerBlackboxMacros(val c: blackbox.Context) extends TransformerMacros {
 
-  import c.universe._
+  import c.universe.*
 
   def buildTransformerImpl[
-      From: WeakTypeTag,
-      To: WeakTypeTag,
-      C: WeakTypeTag,
-      Flags: WeakTypeTag,
-      ScopeFlags: WeakTypeTag
-  ](@unused tc: c.Tree): c.Expr[chimney.Transformer[From, To]] = {
+    From: WeakTypeTag,
+    To: WeakTypeTag,
+    C: WeakTypeTag,
+    Flags: WeakTypeTag,
+    ScopeFlags: WeakTypeTag,
+  ](@unused tc: c.Tree): c.Expr[chimney.Transformer[From, To]] =
     c.Expr[chimney.Transformer[From, To]](
-      buildDefinedTransformer[From, To, C, Flags, ScopeFlags](DerivationTarget.TotalTransformer)
+      buildDefinedTransformer[From, To, C, Flags, ScopeFlags](DerivationTarget.TotalTransformer),
     )
-  }
 
   def buildTransformerFImpl[
-      F[+_],
-      From: WeakTypeTag,
-      To: WeakTypeTag,
-      C: WeakTypeTag,
-      InstanceFlags: WeakTypeTag,
-      ScopeFlags: WeakTypeTag
+    F[+_],
+    From: WeakTypeTag,
+    To: WeakTypeTag,
+    C: WeakTypeTag,
+    InstanceFlags: WeakTypeTag,
+    ScopeFlags: WeakTypeTag,
   ](
-      tfs: c.Expr[TransformerFSupport[F]],
-      @unused tc: c.Tree
+    tfs: c.Expr[TransformerFSupport[F]],
+    @unused tc: c.Tree,
   ): c.Expr[TransformerF[F, From, To]] = {
     val wrapperType = extractWrapperType(weakTypeOf[C])
     val derivationTarget =
       DerivationTarget.LiftedTransformer(wrapperType, tfs.tree, findTransformerErrorPathSupport(wrapperType))
     c.Expr[TransformerF[F, From, To]](
-      buildDefinedTransformer[From, To, C, InstanceFlags, ScopeFlags](derivationTarget)
+      buildDefinedTransformer[From, To, C, InstanceFlags, ScopeFlags](derivationTarget),
     )
   }
 
   def transformImpl[
-      From: WeakTypeTag,
-      To: WeakTypeTag,
-      C: WeakTypeTag,
-      InstanceFlags: WeakTypeTag,
-      ScopeFlags: WeakTypeTag
-  ](@unused tc: c.Tree): c.Expr[To] = {
+    From: WeakTypeTag,
+    To: WeakTypeTag,
+    C: WeakTypeTag,
+    InstanceFlags: WeakTypeTag,
+    ScopeFlags: WeakTypeTag,
+  ](@unused tc: c.Tree): c.Expr[To] =
     c.Expr[To](expandTransform[From, To, C, InstanceFlags, ScopeFlags](DerivationTarget.TotalTransformer))
-  }
 
   def transformFImpl[
-      F[+_],
-      From: WeakTypeTag,
-      To: WeakTypeTag,
-      C: WeakTypeTag,
-      InstanceFlags: WeakTypeTag,
-      ScopeFlags: WeakTypeTag
+    F[+_],
+    From: WeakTypeTag,
+    To: WeakTypeTag,
+    C: WeakTypeTag,
+    InstanceFlags: WeakTypeTag,
+    ScopeFlags: WeakTypeTag,
   ](
-      @unused tc: c.Tree,
-      tfs: c.Expr[TransformerFSupport[F]]
+    @unused tc: c.Tree,
+    tfs: c.Expr[TransformerFSupport[F]],
   ): c.Expr[F[To]] = {
     val wrapperType = extractWrapperType(weakTypeOf[C])
     val derivationTarget =
@@ -71,10 +70,10 @@ class TransformerBlackboxMacros(val c: blackbox.Context) extends TransformerMacr
 
   def deriveTransformerImpl[From: WeakTypeTag, To: WeakTypeTag]: c.Expr[chimney.Transformer[From, To]] = {
     val tcTree = findLocalTransformerConfigurationFlags
-    val flags = captureFromTransformerConfigurationTree(tcTree)
+    val flags  = captureFromTransformerConfigurationTree(tcTree)
 
     val transformerTree = genTransformer[From, To](
-      TransformerConfig(flags = flags).withDefinitionScope(weakTypeOf[From], weakTypeOf[To])
+      TransformerConfig(flags = flags).withDefinitionScope(weakTypeOf[From], weakTypeOf[To]),
     )
 
     c.Expr[chimney.Transformer[From, To]] {
@@ -86,24 +85,24 @@ class TransformerBlackboxMacros(val c: blackbox.Context) extends TransformerMacr
   }
 
   def deriveTransformerFImpl[F[+_], From: WeakTypeTag, To: WeakTypeTag](
-      tfs: c.Expr[TransformerFSupport[F]]
+    tfs: c.Expr[TransformerFSupport[F]],
   )(implicit fwtt: WeakTypeTag[F[Nothing]]): c.Expr[TransformerF[F, From, To]] = {
 
-    val tcTree = findLocalTransformerConfigurationFlags
-    val flags = captureFromTransformerConfigurationTree(tcTree)
+    val tcTree      = findLocalTransformerConfigurationFlags
+    val flags       = captureFromTransformerConfigurationTree(tcTree)
     val wrapperType = fwtt.tpe.typeConstructor
 
     val transformerTree = genTransformer[From, To](
       TransformerConfig(
         flags = flags,
-        definitionScope = Some((weakTypeOf[From], weakTypeOf[To]))
+        definitionScope = Some((weakTypeOf[From], weakTypeOf[To])),
       ).withDerivationTarget(
         DerivationTarget.LiftedTransformer(
           wrapperType = wrapperType,
           wrapperSupportInstance = tfs.tree,
-          wrapperErrorPathSupportInstance = findTransformerErrorPathSupport(wrapperType)
-        )
-      )
+          wrapperErrorPathSupportInstance = findTransformerErrorPathSupport(wrapperType),
+        ),
+      ),
     )
 
     c.Expr[chimney.TransformerF[F, From, To]] {

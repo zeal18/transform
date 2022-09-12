@@ -1,6 +1,8 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.internal.{PatcherCfg, TransformerCfg, TransformerFlags}
+import io.scalaland.chimney.internal.PatcherCfg
+import io.scalaland.chimney.internal.TransformerCfg
+import io.scalaland.chimney.internal.TransformerFlags
 
 /** Main object to import in order to use Chimney's features
   */
@@ -44,7 +46,7 @@ package object dsl {
       * @return [[io.scalaland.chimney.dsl.TransformerFInto]]
       */
     final def intoF[F[+_], To]
-        : TransformerFInto[F, From, To, TransformerCfg.WrapperType[F, TransformerCfg.Empty], TransformerFlags.Default] =
+      : TransformerFInto[F, From, To, TransformerCfg.WrapperType[F, TransformerCfg.Empty], TransformerFlags.Default] =
       new TransformerFInto(source, new TransformerFDefinition(Map.empty, Map.empty))
 
     /** Performs in-place wrapped transformation of captured source value to target type.
@@ -104,10 +106,9 @@ package object dsl {
       * @return patched value
       */
     @deprecated("please use .patchUsing", "0.4.0")
-    final def patchWith[P](patch: P)(implicit patcher: Patcher[T, P]): T = {
+    final def patchWith[P](patch: P)(implicit patcher: Patcher[T, P]): T =
       // $COVERAGE-OFF$
       obj.patchUsing(patch)
-      // $COVERAGE-ON$
-    }
+    // $COVERAGE-ON$
   }
 }

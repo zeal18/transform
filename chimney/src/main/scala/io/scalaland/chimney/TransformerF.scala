@@ -1,7 +1,8 @@
 package io.scalaland.chimney
 
 import io.scalaland.chimney.dsl.TransformerFDefinition
-import io.scalaland.chimney.internal.{TransformerCfg, TransformerFlags}
+import io.scalaland.chimney.internal.TransformerCfg
+import io.scalaland.chimney.internal.TransformerFlags
 import io.scalaland.chimney.internal.macros.dsl.TransformerBlackboxMacros
 
 import scala.language.experimental.macros
@@ -47,8 +48,10 @@ object TransformerF {
     * @tparam To   type of output value
     * @return [[io.scalaland.chimney.dsl.TransformerFDefinition]] with defaults
     */
-  def define[F[+_], From, To]
-      : TransformerFDefinition[F, From, To, TransformerCfg.WrapperType[F, TransformerCfg.Empty], TransformerFlags.Default] =
+  def define[F[+_], From, To]: TransformerFDefinition[F, From, To, TransformerCfg.WrapperType[
+    F,
+    TransformerCfg.Empty,
+  ], TransformerFlags.Default] =
     new TransformerFDefinition(Map.empty, Map.empty)
 
 }

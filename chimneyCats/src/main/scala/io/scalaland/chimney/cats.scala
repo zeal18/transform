@@ -1,12 +1,13 @@
 package io.scalaland.chimney
 
-import _root_.cats.data._
+import _root_.cats.data.*
 import _root_.cats.kernel.Semigroup
-import _root_.cats.{Applicative, ApplicativeError}
+import _root_.cats.Applicative
+import _root_.cats.ApplicativeError
 
-import scala.collection.compat._
+import scala.collection.compat.*
 
-package object cats extends CatsImplicits
+object cats extends CatsImplicits
 
 trait CatsImplicits extends LowPriorityImplicits {
 
@@ -27,11 +28,11 @@ trait CatsImplicits extends LowPriorityImplicits {
     TransformerFIorSupport[NonEmptySet[E]](implicitly)
 
   implicit def TransformerFErrorValidatedNecSupport[M]
-      : TransformerFErrorPathSupport[ValidatedNec[TransformationError[M], +*]] =
+    : TransformerFErrorPathSupport[ValidatedNec[TransformationError[M], +*]] =
     TransformerFValidatedErrorPathSupport[ValidatedNec[TransformationError[M], +*], NonEmptyChain, M]
 
   implicit def TransformerFErrorValidatedNelSupport[M]
-      : TransformerFErrorPathSupport[ValidatedNel[TransformationError[M], +*]] =
+    : TransformerFErrorPathSupport[ValidatedNel[TransformationError[M], +*]] =
     TransformerFValidatedErrorPathSupport[ValidatedNel[TransformationError[M], +*], NonEmptyList, M]
 
   implicit def TransformerFErrorIorNecSupport[M]: TransformerFErrorPathSupport[IorNec[TransformationError[M], +*]] =
@@ -55,10 +56,10 @@ trait LowPriorityImplicits {
 
       override def traverse[M, A, B](it: Iterator[A], f: A => Ior[EE, B])(implicit fac: Factory[B, M]): Ior[EE, M] = {
         var leftSide: EE = null.asInstanceOf[EE]
-        val rightSide = fac.newBuilder
-        var isLeft = false
+        val rightSide    = fac.newBuilder
+        var isLeft       = false
 
-        while (it.hasNext && !isLeft) {
+        while (it.hasNext && !isLeft)
           f(it.next()) match {
             case Ior.Left(a) =>
               if (leftSide == null) leftSide = a
@@ -73,7 +74,6 @@ trait LowPriorityImplicits {
               else leftSide = Semigroup[EE].combine(leftSide, a)
               rightSide += b
           }
-        }
 
         if (isLeft) Ior.left(leftSide)
         else if (leftSide != null) Ior.both(leftSide, rightSide.result())
@@ -92,8 +92,8 @@ trait LowPriorityImplicits {
       def map[A, B](fa: Validated[EE, A], f: A => B): Validated[EE, B] =
         fa.map(f)
 
-      def traverse[M, A, B](it: Iterator[A], f: A => Validated[EE, B])(
-          implicit fac: Factory[B, M]
+      def traverse[M, A, B](it: Iterator[A], f: A => Validated[EE, B])(implicit
+        fac: Factory[B, M],
       ): Validated[EE, M] = {
         val (valid, invalid) = it.map(f).partition(_.isValid)
         Semigroup[EE].combineAllOption(invalid.collect { case Validated.Invalid(e) => e }) match {
@@ -107,12 +107,13 @@ trait LowPriorityImplicits {
       }
     }
 
-  implicit def TransformerFValidatedErrorPathSupport[F[+_], EE[_]: Applicative, M](
-      implicit applicativeError: ApplicativeError[F, EE[TransformationError[M]]]
+  implicit def TransformerFValidatedErrorPathSupport[F[+_], EE[_]: Applicative, M](implicit
+    applicativeError: ApplicativeError[F, EE[TransformationError[M]]],
   ): TransformerFErrorPathSupport[F] =
     new TransformerFErrorPathSupport[F] {
       override def addPath[A](fa: F[A], node: ErrorPathNode): F[A] =
-        applicativeError.handleErrorWith(fa)(ee => applicativeError.raiseError(Applicative[EE].map(ee)(_.prepend(node)))
+        applicativeError.handleErrorWith(fa)(ee =>
+          applicativeError.raiseError(Applicative[EE].map(ee)(_.prepend(node))),
         )
     }
 }

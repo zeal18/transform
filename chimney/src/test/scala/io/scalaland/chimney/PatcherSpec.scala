@@ -1,7 +1,7 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.dsl._
-import utest._
+import io.scalaland.chimney.dsl.*
+import utest.*
 
 object PatcherSpec extends TestSuite {
 
@@ -21,7 +21,7 @@ object PatcherSpec extends TestSuite {
 
     "patch objects with value classes in patch" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       val update = UpdateDetails("xyz@def.com", 123123123L)
 
@@ -31,51 +31,43 @@ object PatcherSpec extends TestSuite {
 
     "patch with redundant fields" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class PatchWithRedundantField(phone: Phone, address: String)
       // note address doesn't exist in User
 
       val patch = PatchWithRedundantField(Phone(4321L), "Unknown")
 
-      compileError("exampleUser.patchUsing(patch)")
-        .check(
-          "",
-          "Field named 'address' not found in target patching type io.scalaland.chimney.TestDomain.User!"
-        )
+      compileError("exampleUser.patchUsing(patch)").check(
+        "",
+        "Field named 'address' not found in target patching type io.scalaland.chimney.TestDomain.User!",
+      )
 
-      exampleUser
-        .using(patch)
-        .ignoreRedundantPatcherFields
-        .patch ==>
+      exampleUser.using(patch).ignoreRedundantPatcherFields.patch ==>
         exampleUser.copy(phone = patch.phone)
     }
 
     "patch with redundant fields at the beginning" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class PatchWithAnotherRedundantField(address: String, phone: Phone)
       // note address doesn't exist in User and it's at the beginning of the case class
 
       val patch = PatchWithAnotherRedundantField("Unknown", Phone(4321L))
 
-      compileError("exampleUser.patchUsing(patch)")
-        .check(
-          "",
-          "Field named 'address' not found in target patching type io.scalaland.chimney.TestDomain.User!"
-        )
+      compileError("exampleUser.patchUsing(patch)").check(
+        "",
+        "Field named 'address' not found in target patching type io.scalaland.chimney.TestDomain.User!",
+      )
 
-      exampleUser
-        .using(patch)
-        .ignoreRedundantPatcherFields
-        .patch ==>
+      exampleUser.using(patch).ignoreRedundantPatcherFields.patch ==>
         exampleUser.copy(phone = patch.phone)
     }
 
     "support optional types in patch" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class UserPatch(email: Option[String], phone: Option[Phone])
 
@@ -87,7 +79,7 @@ object PatcherSpec extends TestSuite {
 
     "support mixed optional and regular types" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class UserPatch(email: String, phone: Option[Phone])
       val update = UserPatch(email = "updated@example.com", phone = None)
@@ -98,7 +90,7 @@ object PatcherSpec extends TestSuite {
 
     "optional fields in the patched object overwritten by None" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class UserPatch(email: String, phone: Option[Phone])
       val update = UserPatch(email = "updated@example.com", phone = None)
@@ -109,7 +101,7 @@ object PatcherSpec extends TestSuite {
 
     "fields of type Option[T] in the patched object not overwritten by None of type Option[Option[T]]" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class UserWithOptional(id: Int, email: Email, phone: Option[Phone])
 
@@ -122,7 +114,7 @@ object PatcherSpec extends TestSuite {
 
     "allow ignoring nones in patches" - {
 
-      import TestDomain._
+      import TestDomain.*
 
       case class Foo(x: Option[Int])
       case class PhonePatch(phone: Option[Phone])
@@ -134,15 +126,9 @@ object PatcherSpec extends TestSuite {
       exampleUserWithOptionalField.patchUsing(IntPatch(None)) ==>
         exampleUserWithOptionalField.copy(phone = None)
 
-      exampleUserWithOptionalField
-        .using(PhonePatch(None))
-        .ignoreNoneInPatch
-        .patch ==> exampleUserWithOptionalField
+      exampleUserWithOptionalField.using(PhonePatch(None)).ignoreNoneInPatch.patch ==> exampleUserWithOptionalField
 
-      exampleUserWithOptionalField
-        .using(IntPatch(None))
-        .ignoreNoneInPatch
-        .patch ==> exampleUserWithOptionalField
+      exampleUserWithOptionalField.using(IntPatch(None)).ignoreNoneInPatch.patch ==> exampleUserWithOptionalField
     }
 
     "patcher with underlying transformation" - {
@@ -156,8 +142,7 @@ object PatcherSpec extends TestSuite {
 
       "failed" - {
         // without implicit Transformer[Int, String], it doesn't compile
-        compileError("""Obj("").patchUsing(Patch(100))""")
-          .check("", "not supported")
+        compileError("""Obj("").patchUsing(Patch(100))""").check("", "not supported")
       }
     }
   }
@@ -167,14 +152,14 @@ object PatcherSpec extends TestSuite {
 object TestDomain {
 
   case class Email(address: String) extends AnyVal
-  case class Phone(number: Long) extends AnyVal
+  case class Phone(number: Long)    extends AnyVal
 
   case class User(id: Int, email: Email, phone: Phone)
   case class UpdateDetails(email: String, phone: Long)
 
   case class UserWithOptionalField(id: Int, email: Email, phone: Option[Phone])
 
-  val exampleUser = User(10, Email("abc@def.com"), Phone(1234567890L))
+  val exampleUser                  = User(10, Email("abc@def.com"), Phone(1234567890L))
   val exampleUserWithOptionalField = UserWithOptionalField(10, Email("abc@def.com"), Option(Phone(1234567890L)))
 
 }

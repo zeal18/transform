@@ -1,13 +1,18 @@
-package io.scalaland.chimney.cats
+package io.scalaland.chimney
 
-import cats.data.{NonEmptyChain, Validated, ValidatedNec, ValidatedNel}
-import io.scalaland.chimney.cats.utils.ValidatedUtils._
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.examples._
-import io.scalaland.chimney.examples.trip._
-import io.scalaland.chimney.utils.OptionUtils._
-import io.scalaland.chimney.{Transformer, TransformerF}
-import utest._
+import _root_.cats.data.NonEmptyChain
+import _root_.cats.data.Validated
+import _root_.cats.data.ValidatedNec
+import _root_.cats.data.ValidatedNel
+import io.scalaland.chimney.utils.ValidatedUtils.*
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.examples.*
+import io.scalaland.chimney.examples.trip.*
+import io.scalaland.chimney.utils.OptionUtils.*
+import io.scalaland.chimney.Transformer
+import io.scalaland.chimney.TransformerF
+import utest.*
+import io.scalaland.chimney.cats.*
 
 import scala.collection.immutable.Queue
 import scala.collection.mutable.ArrayBuffer
@@ -61,7 +66,7 @@ object CatsValidatedSpec extends TestSuite {
               _.name,
               pf =>
                 if (pf.name.isEmpty) Validated.invalidNec("empty name")
-                else Validated.valid(pf.name.toUpperCase())
+                else Validated.valid(pf.name.toUpperCase()),
             )
             .withFieldComputedF(_.age, _.age.parseInt.toValidatedNec("bad age"))
             .withFieldComputedF(_.height, _.height.parseDouble.toValidatedNec("bad height"))
@@ -78,7 +83,7 @@ object CatsValidatedSpec extends TestSuite {
             _.name,
             pf =>
               if (pf.name.isEmpty) Validated.invalidNec("empty name")
-              else Validated.valid(pf.name.toUpperCase())
+              else Validated.valid(pf.name.toUpperCase()),
           )
           .withFieldComputedF(_.age, _.age.parseInt.toValidatedNec("bad age"))
           .withFieldComputedF(_.height, _.age.parseDouble.toValidatedNec("bad double"))
@@ -221,7 +226,7 @@ object CatsValidatedSpec extends TestSuite {
 
         List(123, 456).intoF[ValidatedNec[String, +*], List[String]].transform ==> Validated.valid(List("123", "456"))
         Vector(123, 456).intoF[ValidatedNec[String, +*], Queue[String]].transform ==> Validated.valid(
-          Queue("123", "456")
+          Queue("123", "456"),
         )
         Array.empty[Int].intoF[ValidatedNec[String, +*], Seq[String]].transform ==> Validated.valid(Seq.empty[String])
       }
@@ -383,7 +388,7 @@ object CatsValidatedSpec extends TestSuite {
     }
 
     "wrapped sealed families" - {
-      import numbers._
+      import numbers.*
 
       "pure inner transformer" - {
 

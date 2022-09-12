@@ -1,9 +1,9 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.utils.OptionUtils._
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.utils.OptionUtils.*
 
-import utest._
+import utest.*
 
 object ErrorPathSpec extends TestSuite {
   val tests = Tests {
@@ -39,8 +39,8 @@ object ErrorPathSpec extends TestSuite {
               "Can't parse int from mmm on a",
               "Can't parse int from nnn on b",
               "Can't parse int from lll on c.d",
-              "Can't parse int from jjj on c.e"
-            )
+              "Can't parse int from jjj on c.e",
+            ),
           )
       }
 
@@ -54,8 +54,8 @@ object ErrorPathSpec extends TestSuite {
             List(
               "Can't parse int from a on list(0)",
               "Can't parse int from b on list(1)",
-              "Can't parse int from c on list(2)"
-            )
+              "Can't parse int from c on list(2)",
+            ),
           )
       }
 
@@ -81,8 +81,8 @@ object ErrorPathSpec extends TestSuite {
             "Can't parse int from b on map(a)",
             "Can't parse int from c on map.keys(c)",
             "Can't parse int from d on map(c)",
-            "Can't parse int from f on map2(e)"
-          )
+            "Can't parse int from f on map2(e)",
+          ),
         )
 
         foo.transformIntoF[V, Bar].left.map(_.map(printError)) ==> errors
@@ -98,12 +98,12 @@ object ErrorPathSpec extends TestSuite {
 
         error.check(
           "",
-          "derivation from k: java.lang.String to scala.Double is not supported in Chimney!"
+          "derivation from k: java.lang.String to scala.Double is not supported in Chimney!",
         )
 
         error.check(
           "",
-          "derivation from v: java.lang.String to scala.Double is not supported in Chimney!"
+          "derivation from v: java.lang.String to scala.Double is not supported in Chimney!",
         )
       }
 
@@ -115,17 +115,12 @@ object ErrorPathSpec extends TestSuite {
 
         case class Bar(a: Int, b: Int)
 
-        new Foo("a", "b")
-          .intoF[V, Bar]
-          .enableBeanGetters
-          .transform
-          .left
-          .map(_.map(printError)) ==>
+        new Foo("a", "b").intoF[V, Bar].enableBeanGetters.transform.left.map(_.map(printError)) ==>
           Left(
             List(
               "Can't parse int from a on getA",
-              "Can't parse int from b on getB"
-            )
+              "Can't parse int from b on getB",
+            ),
           )
       }
 
@@ -134,8 +129,8 @@ object ErrorPathSpec extends TestSuite {
           Left(
             List(
               "Can't parse int from a on _1",
-              "Can't parse int from b on _2"
-            )
+              "Can't parse int from b on _2",
+            ),
           )
       }
 
@@ -155,7 +150,7 @@ object ErrorPathSpec extends TestSuite {
               _.double,
               foo =>
                 foo.str.parseDouble
-                  .fold[V[Double]](Left(List(TransformationError(s"Can't parse int from ${foo.str}"))))(Right(_))
+                  .fold[V[Double]](Left(List(TransformationError(s"Can't parse int from ${foo.str}"))))(Right(_)),
             )
             .buildTransformer
 
@@ -169,8 +164,8 @@ object ErrorPathSpec extends TestSuite {
             "Can't parse int from aaa on inner.str",
             "Can't parse int from notint on inner",
             "Can't parse int from aaa on inner",
-            "Can't parse int from bbb on "
-          )
+            "Can't parse int from bbb on ",
+          ),
         )
       }
     }

@@ -6,7 +6,7 @@ trait Model extends TransformerConfigSupport {
 
   val c: blackbox.Context
 
-  import c.universe._
+  import c.universe.*
 
   case class Target(name: String, tpe: Type)
   object Target {
@@ -18,7 +18,7 @@ trait Model extends TransformerConfigSupport {
   }
 
   case class TransformerBodyTree(tree: Tree, target: DerivationTarget) {
-    def isTotalTarget: Boolean = target == DerivationTarget.TotalTransformer
+    def isTotalTarget: Boolean  = target == DerivationTarget.TotalTransformer
     def isLiftedTarget: Boolean = target.isInstanceOf[DerivationTarget.LiftedTransformer]
   }
 

@@ -1,11 +1,13 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.examples.{colors1, colors2, foo}
-import utest._
+import io.scalaland.chimney.examples.colors1
+import io.scalaland.chimney.examples.colors2
+import io.scalaland.chimney.examples.foo
+import utest.*
 
 object IssuesSpec extends TestSuite {
 
-  import dsl._
+  import dsl.*
 
   // Compilation fails when moved inside the Tests block
   object Issue108 {
@@ -21,7 +23,7 @@ object IssuesSpec extends TestSuite {
       case object A0 extends BarA
     }
 
-    val result: Bar = Foo(FooA.A0).transformInto[Bar]
+    val result: Bar   = Foo(FooA.A0).transformInto[Bar]
     val expected: Bar = Bar(BarA.A0)
   }
 
@@ -31,16 +33,12 @@ object IssuesSpec extends TestSuite {
       case class NewEntity(name: String)
       case class Entity(id: Long, name: String, isDeleted: Boolean)
 
-      NewEntity("name")
-        .into[Entity]
-        .withFieldConst(_.id, 0L)
-        .withFieldConst(_.isDeleted, false)
-        .transform ==>
+      NewEntity("name").into[Entity].withFieldConst(_.id, 0L).withFieldConst(_.isDeleted, false).transform ==>
         Entity(0, "name", isDeleted = false)
     }
 
     "fix issue #21" - {
-      import tag._
+      import tag.*
       sealed trait Test
 
       case class EntityWithTag1(id: Long, name: String @@ Test)
@@ -90,8 +88,7 @@ object IssuesSpec extends TestSuite {
           Foo1("test")
             .into[Foo2]
             .withFieldConst(_.x, "xyz")
-          """)
-          .check("", "Cannot prove that String <:< Int")
+          """).check("", "Cannot prove that String <:< Int")
       }
 
       "fix for `withFieldComputed`" - {
@@ -100,16 +97,13 @@ object IssuesSpec extends TestSuite {
           Foo1("test")
             .into[Foo2]
             .withFieldComputed(_.x, _ => "xyz")
-        """)
-          .check("", "Cannot prove that String <:< Int")
+        """).check("", "Cannot prove that String <:< Int")
       }
 
       "fix for `withFieldRenamed`" - {
 
         assert(
-          Foo1("test")
-            .into[Foo3]
-            .withFieldRenamed(_.y, _.x) != null
+          Foo1("test").into[Foo3].withFieldRenamed(_.y, _.x) != null,
         )
       }
     }
@@ -127,7 +121,7 @@ object IssuesSpec extends TestSuite {
       case class Foo(`a.b`: String)
       case class Bar(b: String)
 
-      import io.scalaland.chimney.dsl._
+      import io.scalaland.chimney.dsl.*
 
       Foo("a").into[Bar].withFieldRenamed(_.`a.b`, _.b).transform
     }
@@ -140,10 +134,7 @@ object IssuesSpec extends TestSuite {
         case class Bar(a: String, b: Int, x: Long)
 
         implicit val fooBarTransformer: Transformer[Foo, Bar] =
-          Transformer
-            .define[Foo, Bar]
-            .withFieldComputed(_.x, _.c.toLong * 2)
-            .buildTransformer
+          Transformer.define[Foo, Bar].withFieldComputed(_.x, _.c.toLong * 2).buildTransformer
 
         Foo("a", 1, 3).transformInto[Bar] ==> Bar("a", 1, 6)
       }
@@ -152,10 +143,7 @@ object IssuesSpec extends TestSuite {
         case class Bar(a: String, b: Int, x: Long)
 
         implicit def fooBarTransformer: Transformer[Foo, Bar] =
-          Transformer
-            .define[Foo, Bar]
-            .withFieldComputed(_.x, _.c.toLong * 2)
-            .buildTransformer
+          Transformer.define[Foo, Bar].withFieldComputed(_.x, _.c.toLong * 2).buildTransformer
 
         Foo("a", 1, 3).transformInto[Bar] ==> Bar("a", 1, 6)
       }
@@ -165,13 +153,10 @@ object IssuesSpec extends TestSuite {
 
         object TransformerInstances {
           implicit val fooBarTransformer: Transformer[Foo, Bar] =
-            Transformer
-              .define[Foo, Bar]
-              .withFieldComputed(_.x, _.c.toLong * 2)
-              .buildTransformer
+            Transformer.define[Foo, Bar].withFieldComputed(_.x, _.c.toLong * 2).buildTransformer
         }
 
-        import TransformerInstances._
+        import TransformerInstances.*
 
         Foo("a", 1, 3).transformInto[Bar] ==> Bar("a", 1, 6)
         Foo("a", 1, 3).transformInto[Bar](fooBarTransformer) ==> Bar("a", 1, 6)
@@ -193,7 +178,7 @@ object IssuesSpec extends TestSuite {
             Transformer.derive[Foo, Bar]
         }
 
-        import TransformerInstances._
+        import TransformerInstances.*
 
         Foo("a", 1, 3).transformInto[Bar] ==> Bar("a", 1)
         Foo("a", 1, 3).transformInto[Bar](fooBarTransformer) ==> Bar("a", 1)
@@ -234,12 +219,11 @@ object IssuesSpec extends TestSuite {
       case class BarNested(num: String)
       case class Bar(maybeString: scala.collection.immutable.Seq[String], nested: BarNested)
 
-      compileError("Foo(None, FooNested(None)).into[Bar].transform")
-        .check(
-          "",
-          "derivation from foo.maybeString: scala.Option to scala.collection.immutable.Seq is not supported in Chimney!",
-          "derivation from foo.nested.num: scala.Option to java.lang.String is not supported in Chimney!"
-        )
+      compileError("Foo(None, FooNested(None)).into[Bar].transform").check(
+        "",
+        "derivation from foo.maybeString: scala.Option to scala.collection.immutable.Seq is not supported in Chimney!",
+        "derivation from foo.nested.num: scala.Option to java.lang.String is not supported in Chimney!",
+      )
     }
 
     "fix issue #125" - {
@@ -251,7 +235,7 @@ object IssuesSpec extends TestSuite {
       }
 
       val inputStrings = Strings(Set("one", "two", "three"))
-      val lengths = inputStrings.into[Lengths].transform
+      val lengths      = inputStrings.into[Lengths].transform
       lengths.elems.size ==> 3
     }
 
@@ -308,7 +292,7 @@ object IssuesSpec extends TestSuite {
         case class Venue(name: String)
       }
 
-      import io.scalaland.chimney.dsl._
+      import io.scalaland.chimney.dsl.*
       val venue = internal.ManuallyFilled("Venue Name")
       val event = internal.Event(venue)
 
@@ -455,25 +439,21 @@ object IssuesSpec extends TestSuite {
       def blackIsRed(b: colors2.Black.type): colors1.Color =
         colors1.Red
 
-      (colors2.Black: colors2.Color)
-        .intoF[Option, colors1.Color]
-        .withCoproductInstance(blackIsRed)
-        .transform ==> Some(colors1.Red)
+      (colors2.Black: colors2.Color).intoF[Option, colors1.Color].withCoproductInstance(blackIsRed).transform ==> Some(
+        colors1.Red,
+      )
 
-      (colors2.Red: colors2.Color)
-        .intoF[Option, colors1.Color]
-        .withCoproductInstance(blackIsRed)
-        .transform ==> Some(colors1.Red)
+      (colors2.Red: colors2.Color).intoF[Option, colors1.Color].withCoproductInstance(blackIsRed).transform ==> Some(
+        colors1.Red,
+      )
 
-      (colors2.Green: colors2.Color)
-        .intoF[Option, colors1.Color]
-        .withCoproductInstance(blackIsRed)
-        .transform ==> Some(colors1.Green)
+      (colors2.Green: colors2.Color).intoF[Option, colors1.Color].withCoproductInstance(blackIsRed).transform ==> Some(
+        colors1.Green,
+      )
 
-      (colors2.Blue: colors2.Color)
-        .intoF[Option, colors1.Color]
-        .withCoproductInstance(blackIsRed)
-        .transform ==> Some(colors1.Blue)
+      (colors2.Blue: colors2.Color).intoF[Option, colors1.Color].withCoproductInstance(blackIsRed).transform ==> Some(
+        colors1.Blue,
+      )
     }
 
     "fix issue #182" - {
@@ -483,29 +463,25 @@ object IssuesSpec extends TestSuite {
     "fix issue #214" - {
 
       final case class Foo(
-          `Billing Zip/Postal Code`: String,
-          `Shipping Zip/Postal Code`: String,
-          `Billing Supplier Country (text only)`: String
+        `Billing Zip/Postal Code`: String,
+        `Shipping Zip/Postal Code`: String,
+        `Billing Supplier Country (text only)`: String,
       )
 
       final case class Bar(
-          `Billing Zip/Postal Code`: String,
-          `Shipping Zip/Postal Code`: String,
-          `Billing Supplier Country (text only)`: String
+        `Billing Zip/Postal Code`: String,
+        `Shipping Zip/Postal Code`: String,
+        `Billing Supplier Country (text only)`: String,
       )
 
-      val transformer = Transformer
-        .define[Foo, Bar]
-        .buildTransformer
+      val transformer = Transformer.define[Foo, Bar].buildTransformer
 
-      val foo = Foo("3152XX", "3152XX", "England")
+      val foo      = Foo("3152XX", "3152XX", "England")
       val expected = Bar("3152XX", "3152XX", "England")
-      val result = transformer.transform(foo)
+      val result   = transformer.transform(foo)
       assert(result == expected)
 
-      val transformerF = Transformer
-        .defineF[Either[Seq[String], +*], Foo, Bar]
-        .buildTransformer
+      val transformerF = Transformer.defineF[Either[Seq[String], +*], Foo, Bar].buildTransformer
 
       val resultF = transformerF.transform(foo)
       assert(resultF == Right(expected))

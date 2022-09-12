@@ -1,7 +1,8 @@
 package io.scalaland.chimney.dsl
 
 import io.scalaland.chimney.internal.PatcherCfg
-import io.scalaland.chimney.internal.PatcherCfg.{IgnoreNoneInPatch, IgnoreRedundantPatcherFields}
+import io.scalaland.chimney.internal.PatcherCfg.IgnoreNoneInPatch
+import io.scalaland.chimney.internal.PatcherCfg.IgnoreRedundantPatcherFields
 import io.scalaland.chimney.internal.macros.dsl.PatcherBlackboxMacros
 
 import scala.language.experimental.macros

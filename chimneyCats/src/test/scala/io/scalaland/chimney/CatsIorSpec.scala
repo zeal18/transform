@@ -1,10 +1,17 @@
-package io.scalaland.chimney.cats
+package io.scalaland.chimney
 
-import cats.data.{Ior, IorNec, IorNel, IorNes, NonEmptyChain}
-import io.scalaland.chimney.examples.trip.{Person, PersonForm, User}
-import utest._
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.utils.OptionUtils._
+import _root_.cats.data.Ior
+import _root_.cats.data.IorNec
+import _root_.cats.data.IorNel
+import _root_.cats.data.IorNes
+import _root_.cats.data.NonEmptyChain
+import io.scalaland.chimney.examples.trip.Person
+import io.scalaland.chimney.examples.trip.PersonForm
+import io.scalaland.chimney.examples.trip.User
+import utest.*
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.utils.OptionUtils.*
+import io.scalaland.chimney.cats.*
 
 object CatsIorSpec extends TestSuite {
   val tests: Tests = Tests {
@@ -38,7 +45,7 @@ object CatsIorSpec extends TestSuite {
             .withFieldConst(_.height, 200.5)
             .withFieldComputedF[IorNec[String, +*], Int, Int](
               _.age,
-              _.age.parseInt.map(Ior.right).getOrElse(Ior.left(NonEmptyChain("Invalid age entered")))
+              _.age.parseInt.map(Ior.right).getOrElse(Ior.left(NonEmptyChain("Invalid age entered"))),
             )
             .transform ==> Ior.right(Person("John", 10, 200.5))
         }
@@ -56,7 +63,7 @@ object CatsIorSpec extends TestSuite {
             .intoF[IorNec[String, +*], Person]
             .withFieldComputedF(
               _.name,
-              _ => Ior.both(NonEmptyChain("Putting a dot in the name is deprecated"), "John.Doe")
+              _ => Ior.both(NonEmptyChain("Putting a dot in the name is deprecated"), "John.Doe"),
             )
             .withFieldConstF(_.age, Ior.left(NonEmptyChain("age is too low")))
             .withFieldConstF(_.height, Ior.both(NonEmptyChain("height not available, using default"), 10.0))
@@ -69,12 +76,12 @@ object CatsIorSpec extends TestSuite {
       TransformerFIorSupport[NonEmptyChain[String]]
         .traverse(
           Iterator("bla", "ha", "hee", "bee"),
-          (input: String) => Ior.both(NonEmptyChain(s"Accumulating $input"), input)
+          (input: String) => Ior.both(NonEmptyChain(s"Accumulating $input"), input),
         )
         .map(_.toList) ==>
         Ior.both(
           NonEmptyChain("Accumulating bla", "Accumulating ha", "Accumulating hee", "Accumulating bee"),
-          List("bla", "ha", "hee", "bee")
+          List("bla", "ha", "hee", "bee"),
         )
     }
 

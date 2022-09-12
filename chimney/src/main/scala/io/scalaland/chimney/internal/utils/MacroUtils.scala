@@ -6,31 +6,24 @@ trait MacroUtils extends CompanionUtils {
 
   val c: blackbox.Context
 
-  import c.universe._
+  import c.universe.*
 
-  def freshTermName(srcPrefixTree: Tree): c.universe.TermName = {
+  def freshTermName(srcPrefixTree: Tree): c.universe.TermName =
     freshTermName(toFieldName(srcPrefixTree))
-  }
 
-  def freshTermName(tpe: Type): c.universe.TermName = {
+  def freshTermName(tpe: Type): c.universe.TermName =
     freshTermName(tpe.typeSymbol.name.decodedName.toString.toLowerCase)
-  }
 
-  def freshTermName(prefix: String): c.universe.TermName = {
+  def freshTermName(prefix: String): c.universe.TermName =
     c.internal.reificationSupport.freshTermName(prefix.toLowerCase + "$")
-  }
 
-  def toFieldName(srcPrefixTree: Tree): String = {
+  def toFieldName(srcPrefixTree: Tree): String =
     // undo the encoding of freshTermName
-    srcPrefixTree
-      .toString()
-      .replaceAll("\\$\\d+", "")
-      .replace("$u002E", ".")
-  }
+    srcPrefixTree.toString().replaceAll("\\$\\d+", "").replace("$u002E", ".")
 
   implicit class NameOps(n: Name) {
-    def toNameConstant: Constant = Constant(n.decodedName.toString)
-    def toNameLiteral: Literal = Literal(toNameConstant)
+    def toNameConstant: Constant     = Constant(n.decodedName.toString)
+    def toNameLiteral: Literal       = Literal(toNameConstant)
     def toSingletonTpe: ConstantType = c.internal.constantType(toNameConstant)
   }
 
@@ -50,7 +43,7 @@ trait MacroUtils extends CompanionUtils {
       val ee = t.etaExpand
       if (ee.typeParams.size != args.size) {
         // $COVERAGE-OFF$
-        val een = ee.typeParams.size
+        val een   = ee.typeParams.size
         val argsn = args.size
         c.abort(c.enclosingPosition, s"Type $ee has different arity ($een) than applied to applyTypeArgs ($argsn)!")
         // $COVERAGE-ON$
@@ -67,39 +60,31 @@ trait MacroUtils extends CompanionUtils {
     def isSealedClass: Boolean =
       t.typeSymbol.classSymbolOpt.exists(_.isSealed)
 
-    def caseClassParams: Seq[MethodSymbol] = {
+    def caseClassParams: Seq[MethodSymbol] =
       t.decls.collect {
         case m: MethodSymbol if m.isCaseAccessor || (isValueClass && m.isParamAccessor) =>
           m.asMethod
       }.toSeq
-    }
 
-    def getterMethods: Seq[MethodSymbol] = {
+    def getterMethods: Seq[MethodSymbol] =
       t.decls.collect {
         case m: MethodSymbol if m.isPublic && (m.isGetter || m.isParameterless) =>
           m
       }.toSeq
-    }
 
-    def beanSetterMethods: Seq[MethodSymbol] = {
+    def beanSetterMethods: Seq[MethodSymbol] =
       t.members.collect { case m: MethodSymbol if m.isBeanSetter => m }.toSeq
-    }
 
-    def valueClassMember: Option[MethodSymbol] = {
+    def valueClassMember: Option[MethodSymbol] =
       t.decls.collectFirst {
         case m: MethodSymbol if m.isParamAccessor =>
           m.asMethod
       }
-    }
 
-    def singletonString: String = {
-      t.asInstanceOf[scala.reflect.internal.Types#UniqueConstantType]
-        .value
-        .value
-        .asInstanceOf[String]
-    }
+    def singletonString: String =
+      t.asInstanceOf[scala.reflect.internal.Types#UniqueConstantType].value.value.asInstanceOf[String]
 
-    def collectionInnerTpe: Type = {
+    def collectionInnerTpe: Type =
       t.typeArgs match {
         case List(unaryInnerT) => unaryInnerT
         case List(innerT1, innerT2) =>
@@ -111,7 +96,6 @@ trait MacroUtils extends CompanionUtils {
           c.abort(c.enclosingPosition, "Collection types with more than 2 type arguments are not supported!")
         // $COVERAGE-ON$
       }
-    }
   }
 
   implicit class SymbolOps(s: Symbol) {
@@ -126,22 +110,21 @@ trait MacroUtils extends CompanionUtils {
       s.typeSignature
       classSymbolOpt
         .flatMap { classSymbol =>
-          val classType = classSymbol.toType
-          val companionSym = companionSymbol(classType)
+          val classType            = classSymbol.toType
+          val companionSym         = companionSymbol(classType)
           val primaryFactoryMethod = companionSym.asModule.info.decl(TermName("apply")).alternatives.lastOption
           primaryFactoryMethod.foreach(_.asMethod.typeSignature)
           val primaryConstructor = classSymbol.primaryConstructor
-          val headParamListOpt = primaryConstructor.asMethod.typeSignature.paramLists.headOption.map(_.map(_.asTerm))
+          val headParamListOpt   = primaryConstructor.asMethod.typeSignature.paramLists.headOption.map(_.map(_.asTerm))
 
           headParamListOpt.map { headParamList =>
-            headParamList.zipWithIndex.flatMap {
-              case (param, idx) =>
-                if (param.isParamWithDefault) {
-                  val method = TermName("apply$default$" + (idx + 1))
-                  Some(param.name.toString -> q"$companionSym.$method")
-                } else {
-                  None
-                }
+            headParamList.zipWithIndex.flatMap { case (param, idx) =>
+              if (param.isParamWithDefault) {
+                val method = TermName("apply$default$" + (idx + 1))
+                Some(param.name.toString -> q"$companionSym.$method")
+              } else {
+                None
+              }
             }.toMap
           }
         }
@@ -158,7 +141,7 @@ trait MacroUtils extends CompanionUtils {
       val sEta = s.asType.toType.etaExpand
       sEta.finalResultType.substituteTypes(
         sEta.baseType(parentTpe.typeSymbol).typeArgs.map(_.typeSymbol),
-        parentTpe.typeArgs
+        parentTpe.typeArgs,
       )
     }
   }
@@ -177,26 +160,22 @@ trait MacroUtils extends CompanionUtils {
       }
     }
 
-    def isBeanSetter: Boolean = {
+    def isBeanSetter: Boolean =
       ms.isPublic &&
-      ms.name.decodedName.toString.startsWith("set") &&
-      ms.name.decodedName.toString.lengthCompare(3) > 0 &&
-      ms.paramLists.lengthCompare(1) == 0 &&
-      ms.paramLists.head.lengthCompare(1) == 0 &&
-      ms.returnType == typeOf[Unit]
-    }
+        ms.name.decodedName.toString.startsWith("set") &&
+        ms.name.decodedName.toString.lengthCompare(3) > 0 &&
+        ms.paramLists.lengthCompare(1) == 0 &&
+        ms.paramLists.head.lengthCompare(1) == 0 &&
+        ms.returnType == typeOf[Unit]
 
-    def resultTypeIn(site: Type): Type = {
+    def resultTypeIn(site: Type): Type =
       ms.typeSignatureIn(site).finalResultType
-    }
 
-    def beanSetterParamTypeIn(site: Type): Type = {
+    def beanSetterParamTypeIn(site: Type): Type =
       ms.paramLists.head.head.typeSignatureIn(site)
-    }
 
-    def isParameterless: Boolean = {
+    def isParameterless: Boolean =
       ms.paramLists.isEmpty || ms.paramLists == List(List())
-    }
   }
 
   implicit class ClassSymbolOps(cs: ClassSymbol) {
@@ -244,36 +223,31 @@ trait MacroUtils extends CompanionUtils {
       Block(stats :+ tree, expr)
     }
 
-    def extractSelectorFieldName: TermName = {
+    def extractSelectorFieldName: TermName =
       extractSelectorFieldNameOpt.getOrElse {
         c.abort(c.enclosingPosition, invalidSelectorErrorMessage(t))
       }
-    }
 
-    def extractSelectorFieldNameOpt: Option[TermName] = {
+    def extractSelectorFieldNameOpt: Option[TermName] =
       t match {
         case q"(${vd: ValDef}) => ${idt: Ident}.${fieldName: TermName}" if vd.name == idt.name =>
           Some(fieldName)
         case _ =>
           None
       }
-    }
 
-    def convertCollection(TargetTpe: Type, InnerTpe: Type): Tree = {
-      if (TargetTpe <:< typeOf[scala.collection.Map[_, _]] && scala.util.Properties.versionNumberString < "2.13") {
+    def convertCollection(TargetTpe: Type, InnerTpe: Type): Tree =
+      if (TargetTpe <:< typeOf[scala.collection.Map[?, ?]] && scala.util.Properties.versionNumberString < "2.13") {
         q"$t.toMap"
       } else {
         q"$t.to(_root_.scala.Predef.implicitly[_root_.scala.collection.compat.Factory[$InnerTpe, $TargetTpe]])"
       }
-    }
 
-    def callTransform(input: Tree): Tree = {
+    def callTransform(input: Tree): Tree =
       q"$t.transform($input)"
-    }
 
-    def callUnaryApply(argTree: Tree): Tree = {
+    def callUnaryApply(argTree: Tree): Tree =
       q"$t.apply($argTree)"
-    }
   }
 
   implicit class PairTreeOps(pair: (Tree, Tree)) {
@@ -295,9 +269,8 @@ trait MacroUtils extends CompanionUtils {
     }
   }
 
-  private def invalidSelectorErrorMessage(selectorTree: Tree): String = {
+  private def invalidSelectorErrorMessage(selectorTree: Tree): String =
     s"Invalid selector expression: $selectorTree"
-  }
 
   // $COVERAGE-ON$
 
@@ -310,6 +283,6 @@ trait MacroUtils extends CompanionUtils {
     typeOf[Long],
     typeOf[Char],
     typeOf[Boolean],
-    typeOf[Unit]
+    typeOf[Unit],
   )
 }
