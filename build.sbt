@@ -73,12 +73,6 @@ lazy val root = project
   .settings(noPublishSettings*)
   .aggregate(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
   .dependsOn(chimneyJVM, chimneyJS, chimneyCatsJVM, chimneyCatsJS)
-  .enablePlugins(SphinxPlugin, GhpagesPlugin)
-  .settings(
-    Sphinx / version         := version.value,
-    Sphinx / sourceDirectory := file("docs") / "source",
-    git.remoteRepo           := "git@github.com:scalalandio/chimney.git",
-  )
 
 lazy val chimney = crossProject(JSPlatform, JVMPlatform)
   .crossType(CrossType.Pure)
