@@ -1,11 +1,11 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.examples._
-import io.scalaland.chimney.examples.trip._
-import io.scalaland.chimney.utils.EitherUtils._
-import io.scalaland.chimney.utils.OptionUtils._
-import utest._
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.examples.*
+import io.scalaland.chimney.examples.trip.*
+import io.scalaland.chimney.utils.EitherUtils.*
+import io.scalaland.chimney.utils.OptionUtils.*
+import utest.*
 
 import scala.collection.immutable.Queue
 import scala.collection.mutable.ArrayBuffer
@@ -28,10 +28,7 @@ object DslFSpec extends TestSuite {
     "transform always fails" - {
 
       "option" - {
-        Person("John", 10, 140)
-          .intoF[Option, User]
-          .withFieldConstF(_.height, Option.empty[Double])
-          .transform ==> None
+        Person("John", 10, 140).intoF[Option, User].withFieldConstF(_.height, Option.empty[Double]).transform ==> None
       }
 
       "either" - {
@@ -104,7 +101,7 @@ object DslFSpec extends TestSuite {
                 _.name,
                 pf =>
                   if (pf.name.isEmpty) Left(List("empty name"))
-                  else Right(pf.name.toUpperCase())
+                  else Right(pf.name.toUpperCase()),
               )
               .withFieldComputedF(_.age, _.age.parseInt.toEither("bad age"))
               .withFieldComputedF(_.height, _.height.parseDouble.toEither("bad height"))
@@ -131,7 +128,7 @@ object DslFSpec extends TestSuite {
               _.name,
               pf =>
                 if (pf.name.isEmpty) Left(List("empty name"))
-                else Right(pf.name.toUpperCase())
+                else Right(pf.name.toUpperCase()),
             )
             .withFieldComputedF(_.age, _.age.parseInt.toEither("bad age"))
             .withFieldComputedF(_.height, _.age.parseDouble.toEither("bad double"))
@@ -162,10 +159,9 @@ object DslFSpec extends TestSuite {
 
         "option" - {
 
-          okTripForm
-            .into[Trip]
-            .withFieldComputedF(_.id, _.tripId.parseInt)
-            .transform ==> Some(Trip(100, Vector(Person("John", 10, 140), Person("Caroline", 12, 155))))
+          okTripForm.into[Trip].withFieldComputedF(_.id, _.tripId.parseInt).transform ==> Some(
+            Trip(100, Vector(Person("John", 10, 140), Person("Caroline", 12, 155))),
+          )
         }
 
         "either" - {
@@ -181,10 +177,7 @@ object DslFSpec extends TestSuite {
         val badTripForm = TripForm("100", List(PersonForm("John", "10", "foo"), PersonForm("Caroline", "bar", "155")))
 
         "option" - {
-          badTripForm
-            .into[Trip]
-            .withFieldComputedF(_.id, _.tripId.parseInt)
-            .transform ==> None
+          badTripForm.into[Trip].withFieldComputedF(_.id, _.tripId.parseInt).transform ==> None
         }
 
         "either" - {
@@ -591,7 +584,7 @@ object DslFSpec extends TestSuite {
 
         "F = Option" - {
 
-          implicit val intPrinter: Transformer[Int, String] = _.toString
+          implicit val intPrinter: Transformer[Int, String]            = _.toString
           implicit val intParserOpt: TransformerF[Option, String, Int] = _.parseInt
 
           (Left("1"): Either[String, Int]).transformIntoF[Option, Either[Int, String]] ==> Some(Left(1))
@@ -627,7 +620,7 @@ object DslFSpec extends TestSuite {
     }
 
     "wrapped sealed families" - {
-      import numbers._
+      import numbers.*
 
       "pure inner transformer" - {
 
@@ -636,14 +629,16 @@ object DslFSpec extends TestSuite {
         "F = Option" - {
           import ScalesTransformer.shortToLongPureInner
 
-          (short.Zero: short.NumScale[Int, Nothing])
-            .transformIntoF[Option, long.NumScale[String]] ==> Some(long.Zero)
-          (short.Million(4): short.NumScale[Int, Nothing])
-            .transformIntoF[Option, long.NumScale[String]] ==> Some(long.Million("4"))
-          (short.Billion(2): short.NumScale[Int, Nothing])
-            .transformIntoF[Option, long.NumScale[String]] ==> Some(long.Milliard("2"))
-          (short.Trillion(100): short.NumScale[Int, Nothing])
-            .transformIntoF[Option, long.NumScale[String]] ==> Some(long.Billion("100"))
+          (short.Zero: short.NumScale[Int, Nothing]).transformIntoF[Option, long.NumScale[String]] ==> Some(long.Zero)
+          (short.Million(4): short.NumScale[Int, Nothing]).transformIntoF[Option, long.NumScale[String]] ==> Some(
+            long.Million("4"),
+          )
+          (short.Billion(2): short.NumScale[Int, Nothing]).transformIntoF[Option, long.NumScale[String]] ==> Some(
+            long.Milliard("2"),
+          )
+          (short.Trillion(100): short.NumScale[Int, Nothing]).transformIntoF[Option, long.NumScale[String]] ==> Some(
+            long.Billion("100"),
+          )
         }
 
         "F = Either[List[String], +*]]" - {
@@ -667,21 +662,20 @@ object DslFSpec extends TestSuite {
 
           import ScalesTransformer.shortToLongWrappedInner
 
-          (short.Zero: short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> Some(long.Zero)
-          (short.Million("4"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> Some(long.Million(4))
-          (short.Billion("2"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> Some(long.Milliard(2))
-          (short.Trillion("100"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> Some(long.Billion(100))
+          (short.Zero: short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> Some(long.Zero)
+          (short.Million("4"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> Some(
+            long.Million(4),
+          )
+          (short.Billion("2"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> Some(
+            long.Milliard(2),
+          )
+          (short.Trillion("100"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> Some(
+            long.Billion(100),
+          )
 
-          (short.Million("x"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> None
-          (short.Billion("x"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> None
-          (short.Trillion("x"): short.NumScale[String, Nothing])
-            .transformIntoF[Option, long.NumScale[Int]] ==> None
+          (short.Million("x"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> None
+          (short.Billion("x"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> None
+          (short.Trillion("x"): short.NumScale[String, Nothing]).transformIntoF[Option, long.NumScale[Int]] ==> None
         }
 
         "F = Either[List[String], +*]]" - {
@@ -728,12 +722,11 @@ object DslFSpec extends TestSuite {
         compileError("""
           type EitherListStr[+X] = Either[List[String], X]
           OuterIn(InnerIn("test")).transformIntoF[EitherListStr, OuterOut]
-          """)
-          .check(
-            "",
-            "Ambiguous implicits while resolving Chimney recursive transformation",
-            "Please eliminate ambiguity from implicit scope or use withFieldComputed/withFieldComputedF to decide which one should be used"
-          )
+          """).check(
+          "",
+          "Ambiguous implicits while resolving Chimney recursive transformation",
+          "Please eliminate ambiguity from implicit scope or use withFieldComputed/withFieldComputedF to decide which one should be used",
+        )
       }
 
       "resolve conflict explicitly using .withFieldComputed" - {
@@ -787,11 +780,11 @@ object DslFSpec extends TestSuite {
       case class Inner(id: Int, str: String)
 
       RawData(Some("1"), Some(RawInner(Some(2), Some("str")))).transformIntoF[F, Data] ==> Right(
-        Data(1, Inner(2, "str"))
+        Data(1, Inner(2, "str")),
       )
 
       RawData(Some("a"), Some(RawInner(None, None))).transformIntoF[F, Data] ==> Left(
-        List("bad int", "Expected value, got none", "Expected value, got none")
+        List("bad int", "Expected value, got none", "Expected value, got none"),
       )
     }
 
@@ -800,9 +793,8 @@ object DslFSpec extends TestSuite {
       class Source { def field1: Int = 100 }
       case class Target(field1: Int = 200, field2: Option[String] = Some("foo"))
 
-      implicit val transformerConfiguration = {
+      implicit val transformerConfiguration =
         TransformerConfiguration.default.enableOptionDefaultsToNone.enableMethodAccessors.disableDefaultValues
-      }
 
       "scoped config only" - {
 
@@ -812,16 +804,11 @@ object DslFSpec extends TestSuite {
 
       "scoped config overridden by instance flag" - {
 
-        (new Source)
-          .intoF[Option, Target]
-          .disableMethodAccessors
-          .enableDefaultValues
-          .transform ==> Some(Target(200, Some("foo")))
+        (new Source).intoF[Option, Target].disableMethodAccessors.enableDefaultValues.transform ==> Some(
+          Target(200, Some("foo")),
+        )
 
-        (new Source)
-          .intoF[Option, Target]
-          .enableDefaultValues
-          .transform ==> Some(Target(100, Some("foo")))
+        (new Source).intoF[Option, Target].enableDefaultValues.transform ==> Some(Target(100, Some("foo")))
 
         (new Source)
           .intoF[Option, Target]
@@ -835,8 +822,7 @@ object DslFSpec extends TestSuite {
 
         compileError("""
           (new Source).intoF[Option, Target].disableOptionDefaultsToNone.transform
-        """)
-          .check("", "Chimney can't derive transformation from Source to Target")
+        """).check("", "Chimney can't derive transformation from Source to Target")
       }
     }
 
@@ -845,9 +831,10 @@ object DslFSpec extends TestSuite {
         io.scalaland.chimney.TransformerF[VTransformer.F, A, B]
 
       object VTransformer {
-        import io.scalaland.chimney.internal.{TransformerCfg, TransformerFlags}
+        import io.scalaland.chimney.internal.TransformerCfg
+        import io.scalaland.chimney.internal.TransformerFlags
 
-        type F[+A] = Either[List[String], A]
+        type F[+A]      = Either[List[String], A]
         type DefaultCfg = TransformerCfg.WrapperType[F, TransformerCfg.Empty]
         type Definition[From, To] =
           TransformerFDefinition[F, From, To, DefaultCfg, TransformerFlags.Default]

@@ -6,36 +6,34 @@ trait TargetConstructorMacros extends Model {
 
   val c: blackbox.Context
 
-  import c.universe._
+  import c.universe.*
 
-  def mkNewClass(classTpe: Type, args: Iterable[Tree]): Tree = {
+  def mkNewClass(classTpe: Type, args: Iterable[Tree]): Tree =
     q"new $classTpe(..$args)"
-  }
 
   def mkNewJavaBean(classTpe: Type, argsMapping: Iterable[(Target, Tree)]): Tree = {
 
     val fn = freshTermName(classTpe)
 
     val objCreation = q"val $fn = new $classTpe"
-    val setterInvocations = argsMapping.map {
-      case (target, argTree) =>
-        val setterName = TermName("set" + target.name.capitalize)
-        q"$fn.$setterName($argTree)"
+    val setterInvocations = argsMapping.map { case (target, argTree) =>
+      val setterName = TermName("set" + target.name.capitalize)
+      q"$fn.$setterName($argTree)"
     }.toSeq
 
     q"{..${objCreation +: setterInvocations}; $fn}"
   }
 
   def mkCoproductInstance(
-      transformerDefinitionPrefix: Tree,
-      srcPrefixTree: Tree,
-      instSymbol: Symbol,
-      To: Type,
-      derivationTarget: DerivationTarget
+    transformerDefinitionPrefix: Tree,
+    srcPrefixTree: Tree,
+    instSymbol: Symbol,
+    To: Type,
+    derivationTarget: DerivationTarget,
   ): Tree = {
-    val instFullName = instSymbol.fullName
+    val instFullName   = instSymbol.fullName
     val fullTargetName = To.typeSymbol.fullName
-    val finalTpe = derivationTarget.targetType(To)
+    val finalTpe       = derivationTarget.targetType(To)
     q"""
       $transformerDefinitionPrefix
         .instances(($instFullName, $fullTargetName))
@@ -45,36 +43,34 @@ trait TargetConstructorMacros extends Model {
     """
   }
 
-  def mkTransformerBodyTree0(derivationTarget: DerivationTarget)(targetValueTree: Tree): Tree = {
+  def mkTransformerBodyTree0(derivationTarget: DerivationTarget)(targetValueTree: Tree): Tree =
     derivationTarget match {
       case DerivationTarget.TotalTransformer =>
         targetValueTree
       case DerivationTarget.LiftedTransformer(_, wrapperSupportInstance, _) =>
-        q"${wrapperSupportInstance}.pure($targetValueTree)"
+        q"$wrapperSupportInstance.pure($targetValueTree)"
     }
-  }
 
   def mkTransformerBodyTree1(
-      To: Type,
-      target: Target,
-      transformerBodyTree: TransformerBodyTree,
-      derivationTarget: DerivationTarget
+    To: Type,
+    target: Target,
+    transformerBodyTree: TransformerBodyTree,
+    derivationTarget: DerivationTarget,
   )(
-      mkTargetValueTree: Tree => Tree
-  ): Tree = {
-    mkTransformerBodyTree(To, Seq(target), Seq(transformerBodyTree), derivationTarget) {
-      case Seq(innerTree) => mkTargetValueTree(innerTree)
+    mkTargetValueTree: Tree => Tree,
+  ): Tree =
+    mkTransformerBodyTree(To, Seq(target), Seq(transformerBodyTree), derivationTarget) { case Seq(innerTree) =>
+      mkTargetValueTree(innerTree)
     }
-  }
 
   def mkTransformerBodyTree(
-      To: Type,
-      targets: Seq[Target],
-      bodyTreeArgs: Seq[TransformerBodyTree],
-      derivationTarget: DerivationTarget
+    To: Type,
+    targets: Seq[Target],
+    bodyTreeArgs: Seq[TransformerBodyTree],
+    derivationTarget: DerivationTarget,
   )(
-      mkTargetValueTree: Seq[Tree] => Tree
-  ): Tree = {
+    mkTargetValueTree: Seq[Tree] => Tree,
+  ): Tree =
     derivationTarget match {
       case DerivationTarget.TotalTransformer =>
         mkTargetValueTree(bodyTreeArgs.map(_.tree))
@@ -86,7 +82,7 @@ trait TargetConstructorMacros extends Model {
         } else {
 
           val (wrappedTargets, wrappedBodyTrees) = wrappedArgs.unzip
-          val wrappedTrees = wrappedBodyTrees.map(_.tree)
+          val wrappedTrees                       = wrappedBodyTrees.map(_.tree)
           val productF = wrappedTrees.reduceRight { (tree, rest) =>
             q"$wrapperSupportInstance.product($tree, $rest)"
           }
@@ -97,11 +93,13 @@ trait TargetConstructorMacros extends Model {
             Bind(termName, Ident(termNames.WILDCARD))
           }
           val productType = argTypes.map(tpe => tq"$tpe").reduceRight[Tree]((param, tree) => tq"($param, $tree)")
-          val patternF = bindTreesF.reduceRight[Tree]((param, tree) => pq"(..${List(param, tree)})")
+          val patternF    = bindTreesF.reduceRight[Tree]((param, tree) => pq"(..${List(param, tree)})")
 
-          val patRefArgsMap = (wrappedTargets zip argNames).map { case (target, argName) => target -> q"$argName" }.toMap
-          val pureArgsMap = pureArgs.map { case (target, bt)                             => target -> bt.tree }.toMap
-          val argsMap = pureArgsMap ++ patRefArgsMap
+          val patRefArgsMap = (wrappedTargets zip argNames).map { case (target, argName) =>
+            target -> q"$argName"
+          }.toMap
+          val pureArgsMap = pureArgs.map { case (target, bt) => target -> bt.tree }.toMap
+          val argsMap     = pureArgsMap ++ patRefArgsMap
 
           val updatedArgs = targets.map(argsMap)
 
@@ -113,5 +111,4 @@ trait TargetConstructorMacros extends Model {
           """
         }
     }
-  }
 }

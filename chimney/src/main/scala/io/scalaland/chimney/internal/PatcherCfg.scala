@@ -5,29 +5,29 @@ import scala.reflect.macros.blackbox
 sealed abstract class PatcherCfg
 
 object PatcherCfg {
-  final class Empty extends PatcherCfg
+  final class Empty                                         extends PatcherCfg
   final class IgnoreRedundantPatcherFields[C <: PatcherCfg] extends PatcherCfg
-  final class IgnoreNoneInPatch[C <: PatcherCfg] extends PatcherCfg
+  final class IgnoreNoneInPatch[C <: PatcherCfg]            extends PatcherCfg
 }
 
 trait PatcherConfiguration {
 
   val c: blackbox.Context
 
-  import c.universe._
+  import c.universe.*
 
   case class PatcherConfig(
-      ignoreNoneInPatch: Boolean = false,
-      ignoreRedundantPatcherFields: Boolean = false
+    ignoreNoneInPatch: Boolean = false,
+    ignoreRedundantPatcherFields: Boolean = false,
   )
 
   def capturePatcherConfig(cfgTpe: Type, config: PatcherConfig = PatcherConfig()): PatcherConfig = {
 
-    import PatcherCfg._
+    import PatcherCfg.*
 
-    val emptyT = typeOf[Empty]
-    val ignoreRedundantPatcherFields = typeOf[IgnoreRedundantPatcherFields[_]].typeConstructor
-    val ignoreNoneInPatch = typeOf[IgnoreNoneInPatch[_]].typeConstructor
+    val emptyT                       = typeOf[Empty]
+    val ignoreRedundantPatcherFields = typeOf[IgnoreRedundantPatcherFields[?]].typeConstructor
+    val ignoreNoneInPatch            = typeOf[IgnoreNoneInPatch[?]].typeConstructor
 
     if (cfgTpe =:= emptyT) {
       config

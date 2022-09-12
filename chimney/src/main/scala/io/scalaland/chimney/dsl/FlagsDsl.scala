@@ -1,7 +1,7 @@
 package io.scalaland.chimney.dsl
 
 import io.scalaland.chimney.internal.TransformerFlags
-import io.scalaland.chimney.internal.TransformerFlags._
+import io.scalaland.chimney.internal.TransformerFlags.*
 
 trait FlagsDsl[UpdateFlag[_ <: TransformerFlags], Flags <: TransformerFlags] {
 

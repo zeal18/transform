@@ -1,7 +1,9 @@
 package io.scalaland.chimney.internal.macros
 
-import io.scalaland.chimney.internal.utils.{TypeTestUtils, DslMacroUtils}
-import io.scalaland.chimney.internal.{TransformerDerivationError, IncompatibleSourceTuple}
+import io.scalaland.chimney.internal.utils.TypeTestUtils
+import io.scalaland.chimney.internal.utils.DslMacroUtils
+import io.scalaland.chimney.internal.TransformerDerivationError
+import io.scalaland.chimney.internal.IncompatibleSourceTuple
 
 import scala.collection.immutable.ListMap
 import scala.reflect.macros.blackbox
@@ -10,13 +12,13 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
 
   val c: blackbox.Context
 
-  import c.universe._
+  import c.universe.*
 
   def resolveSourceTupleAccessors(
-      From: Type,
-      To: Type
+    From: Type,
+    To: Type,
   ): Either[Seq[TransformerDerivationError], Map[Target, AccessorResolution.Resolved]] = {
-    val tupleElems = From.caseClassParams
+    val tupleElems   = From.caseClassParams
     val targetFields = To.caseClassParams
 
     if (tupleElems.size != targetFields.size) {
@@ -26,57 +28,55 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
             tupleElems.size,
             targetFields.size,
             From.typeSymbol.fullName,
-            To.typeSymbol.fullName
-          )
+            To.typeSymbol.fullName,
+          ),
         )
       }
     } else {
       Right {
-        (tupleElems zip targetFields).map {
-          case (tupleElem, targetField) =>
-            Target.fromField(targetField, To) -> AccessorResolution.Resolved(tupleElem, wasRenamed = false)
+        (tupleElems zip targetFields).map { case (tupleElem, targetField) =>
+          Target.fromField(targetField, To) -> AccessorResolution.Resolved(tupleElem, wasRenamed = false)
         }.toMap
       }
     }
   }
 
   def resolveAccessorsMapping(
-      From: Type,
-      targets: Iterable[Target],
-      config: TransformerConfig
+    From: Type,
+    targets: Iterable[Target],
+    config: TransformerConfig,
   ): Map[Target, AccessorResolution] = {
     val fromGetters = From.getterMethods
-    val accessorsMapping = targets
-      .map { target =>
-        target -> {
-          val lookupName = config.fieldOverrides.get(target.name) match {
-            case Some(FieldOverride.RenamedFrom(sourceName)) => sourceName
-            case _                                           => target.name
-          }
-          val wasRenamed = lookupName != target.name
-          fromGetters
-            .map(lookupAccessor(config, lookupName, wasRenamed, From))
-            .find(_ != AccessorResolution.NotFound)
-            .getOrElse(AccessorResolution.NotFound)
+    val accessorsMapping = targets.map { target =>
+      target -> {
+        val lookupName = config.fieldOverrides.get(target.name) match {
+          case Some(FieldOverride.RenamedFrom(sourceName)) => sourceName
+          case _                                           => target.name
         }
+        val wasRenamed = lookupName != target.name
+        fromGetters
+          .map(lookupAccessor(config, lookupName, wasRenamed, From))
+          .find(_ != AccessorResolution.NotFound)
+          .getOrElse(AccessorResolution.NotFound)
       }
+    }
 
-    ListMap(accessorsMapping.toSeq: _*)
+    ListMap(accessorsMapping.toSeq*)
   }
 
   def resolveOverrides(
-      srcPrefixTree: Tree,
-      From: Type,
-      targets: Iterable[Target],
-      config: TransformerConfig
-  ): Map[Target, TransformerBodyTree] = {
+    srcPrefixTree: Tree,
+    From: Type,
+    targets: Iterable[Target],
+    config: TransformerConfig,
+  ): Map[Target, TransformerBodyTree] =
     targets.flatMap { target =>
       config.fieldOverrides.get(target.name) match {
         case Some(FieldOverride.Const) =>
           Some {
             target -> TransformerBodyTree(
               config.transformerDefinitionPrefix.accessOverriddenConstValue(target.name, target.tpe),
-              DerivationTarget.TotalTransformer
+              DerivationTarget.TotalTransformer,
             )
           }
         case Some(FieldOverride.ConstF) if config.derivationTarget.isInstanceOf[DerivationTarget.LiftedTransformer] =>
@@ -84,7 +84,7 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
           Some {
             target -> TransformerBodyTree(
               config.transformerDefinitionPrefix.accessOverriddenConstValue(target.name, fTargetTpe),
-              config.derivationTarget
+              config.derivationTarget,
             )
           }
         case Some(FieldOverride.Computed) =>
@@ -93,7 +93,7 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
               config.transformerDefinitionPrefix
                 .accessOverriddenComputedFunction(target.name, From, target.tpe)
                 .callUnaryApply(srcPrefixTree),
-              DerivationTarget.TotalTransformer
+              DerivationTarget.TotalTransformer,
             )
           }
         case Some(FieldOverride.ComputedF)
@@ -104,19 +104,18 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
               config.transformerDefinitionPrefix
                 .accessOverriddenComputedFunction(target.name, From, fTargetTpe)
                 .callUnaryApply(srcPrefixTree),
-              config.derivationTarget
+              config.derivationTarget,
             )
           }
         case _ =>
           None
       }
     }.toMap
-  }
 
   def resolveFallbackTransformerBodies(
-      targets: Iterable[Target],
-      To: Type,
-      config: TransformerConfig
+    targets: Iterable[Target],
+    To: Type,
+    config: TransformerConfig,
   ): Map[Target, TransformerBodyTree] = {
 
     lazy val targetCaseClassDefaults = To.typeSymbol.asClass.caseClassDefaults
@@ -147,21 +146,23 @@ trait MappingMacros extends Model with TypeTestUtils with DslMacroUtils {
 
       defaultValueFallback orElse optionNoneFallback orElse unitFallback
     }
-    ListMap(fallbackTransformers.toSeq: _*)
+    ListMap(fallbackTransformers.toSeq*)
   }
 
   def lookupAccessor(
-      config: TransformerConfig,
-      lookupName: String,
-      wasRenamed: Boolean,
-      From: Type
+    config: TransformerConfig,
+    lookupName: String,
+    wasRenamed: Boolean,
+    From: Type,
   )(ms: MethodSymbol): AccessorResolution = {
     val sourceName = ms.name.decodedName.toString
     if (config.flags.beanGetters) {
       val lookupNameCapitalized = lookupName.capitalize
-      if (sourceName == lookupName ||
-          sourceName == s"get$lookupNameCapitalized" ||
-          (sourceName == s"is$lookupNameCapitalized" && ms.resultTypeIn(From) == typeOf[Boolean])) {
+      if (
+        sourceName == lookupName ||
+        sourceName == s"get$lookupNameCapitalized" ||
+        (sourceName == s"is$lookupNameCapitalized" && ms.resultTypeIn(From) == typeOf[Boolean])
+      ) {
         AccessorResolution.Resolved(ms, wasRenamed = false)
       } else {
         AccessorResolution.NotFound

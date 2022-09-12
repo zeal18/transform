@@ -7,8 +7,8 @@ trait EitherUtils {
     def partitionEitherValues: (Map[K, E], Map[K, V]) = {
       val (lefts, rights) = map.partition(_._2.isLeft)
       (
-        lefts.collect { case (k, Left(v))   => k -> v },
-        rights.collect { case (k, Right(v)) => k -> v }
+        lefts.collect { case (k, Left(v)) => k -> v },
+        rights.collect { case (k, Right(v)) => k -> v },
       )
     }
   }

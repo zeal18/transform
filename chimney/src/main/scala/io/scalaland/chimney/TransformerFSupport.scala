@@ -1,6 +1,6 @@
 package io.scalaland.chimney
 
-import scala.collection.compat._
+import scala.collection.compat.*
 
 /** Type class supporting lifted transformers.
   *
@@ -63,8 +63,8 @@ trait TransformerFSupport[F[+_]] {
     * @tparam B  target element type of function `f`
     * @return wrapped collection of type `F[M]`
     */
-  def traverse[M, A, B](it: Iterator[A], f: A => F[B])(
-      implicit fac: Factory[B, M]
+  def traverse[M, A, B](it: Iterator[A], f: A => F[B])(implicit
+    fac: Factory[B, M],
   ): F[M]
 }
 
@@ -77,25 +77,22 @@ object TransformerFSupport {
 
       def pure[A](value: A): Option[A] = Option(value)
 
-      def product[A, B](fa: Option[A], fb: => Option[B]): Option[(A, B)] = {
+      def product[A, B](fa: Option[A], fb: => Option[B]): Option[(A, B)] =
         fa.flatMap(a => fb.map(b => (a, b)))
-      }
 
-      def map[A, B](fa: Option[A], f: A => B): Option[B] = {
+      def map[A, B](fa: Option[A], f: A => B): Option[B] =
         fa.map(f)
-      }
 
-      def traverse[M, A, B](it: Iterator[A], f: A => Option[B])(
-          implicit fac: Factory[B, M]
+      def traverse[M, A, B](it: Iterator[A], f: A => Option[B])(implicit
+        fac: Factory[B, M],
       ): Option[M] = {
-        val b = fac.newBuilder
+        val b       = fac.newBuilder
         var wasNone = false
-        while (!wasNone && it.hasNext) {
+        while (!wasNone && it.hasNext)
           f(it.next()) match {
             case None     => wasNone = true
             case Some(fb) => b += fb
           }
-        }
         if (wasNone) None else Some(b.result())
       }
     }
@@ -106,13 +103,13 @@ object TransformerFSupport {
     * @tparam E error type
     * @tparam C error accumulator type constructor
     */
-  implicit def TransformerFEitherErrorAccumulatingSupport[E, C[X] <: IterableOnce[X]](
-      implicit ef: Factory[E, C[E]]
+  implicit def TransformerFEitherErrorAccumulatingSupport[E, C[X] <: IterableOnce[X]](implicit
+    ef: Factory[E, C[E]],
   ): TransformerFSupport[Either[C[E], +*]] = new TransformerFSupport[Either[C[E], +*]] {
 
     def pure[A](value: A): Either[C[E], A] = Right(value)
 
-    def product[A, B](fa: Either[C[E], A], fb: => Either[C[E], B]): Either[C[E], (A, B)] = {
+    def product[A, B](fa: Either[C[E], A], fb: => Either[C[E], B]): Either[C[E], (A, B)] =
       (fa, fb) match {
         case (Right(ok1), Right(ok2)) =>
           Right((ok1, ok2))
@@ -122,23 +119,21 @@ object TransformerFSupport {
           left2.left.foreach(eb ++= _)
           Left(eb.result())
       }
-    }
 
-    def map[A, B](fa: Either[C[E], A], f: A => B): Either[C[E], B] = {
+    def map[A, B](fa: Either[C[E], A], f: A => B): Either[C[E], B] =
       fa match {
         case Right(a)   => Right(f(a))
         case Left(errs) => Left(errs)
       }
-    }
 
-    def traverse[M, A, B](it: Iterator[A], f: A => Either[C[E], B])(
-        implicit fac: Factory[B, M]
+    def traverse[M, A, B](it: Iterator[A], f: A => Either[C[E], B])(implicit
+      fac: Factory[B, M],
     ): Either[C[E], M] = {
-      val bs = fac.newBuilder
-      val eb = ef.newBuilder
+      val bs     = fac.newBuilder
+      val eb     = ef.newBuilder
       var hasErr = false
 
-      while (it.hasNext) {
+      while (it.hasNext)
         f(it.next()) match {
           case Left(errs) =>
             eb ++= errs
@@ -151,7 +146,6 @@ object TransformerFSupport {
               bs += b
             }
         }
-      }
 
       if (!hasErr) Right(bs.result()) else Left(eb.result())
     }

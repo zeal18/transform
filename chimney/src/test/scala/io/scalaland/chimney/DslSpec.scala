@@ -1,8 +1,8 @@
 package io.scalaland.chimney
 
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.examples._
-import utest._
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.examples.*
+import utest.*
 
 object DslSpec extends TestSuite {
 
@@ -10,7 +10,7 @@ object DslSpec extends TestSuite {
 
     "use implicit transformer directly" - {
 
-      import Domain1._
+      import Domain1.*
 
       implicit def trans: Transformer[UserName, String] = userNameToStringTransformer
 
@@ -20,11 +20,11 @@ object DslSpec extends TestSuite {
 
     "use implicit transformer for nested field" - {
 
-      import Domain1._
+      import Domain1.*
 
       implicit def trans: Transformer[UserName, String] = userNameToStringTransformer
 
-      val batman = User("123", UserName("Batman"))
+      val batman    = User("123", UserName("Batman"))
       val batmanDTO = batman.transformInto[UserDTO]
 
       batmanDTO.id ==> "123"
@@ -53,16 +53,10 @@ object DslSpec extends TestSuite {
 
           "pass when selector is valid" - {
 
-            Bar(3, (3.14, 3.14))
-              .into[Foo]
-              .withFieldConst(_.y, "pi")
-              .transform ==>
+            Bar(3, (3.14, 3.14)).into[Foo].withFieldConst(_.y, "pi").transform ==>
               Foo(3, "pi", (3.14, 3.14))
 
-            Bar(3, (3.14, 3.14))
-              .into[Foo]
-              .withFieldConst(cc => cc.y, "pi")
-              .transform ==>
+            Bar(3, (3.14, 3.14)).into[Foo].withFieldConst(cc => cc.y, "pi").transform ==>
               Foo(3, "pi", (3.14, 3.14))
           }
 
@@ -73,15 +67,13 @@ object DslSpec extends TestSuite {
                   .withFieldConst(_.y, "pi")
                   .withFieldConst(_.z._1, 0.0)
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
 
             compileError("""Bar(3, (3.14, 3.14))
                   .into[Foo]
                   .withFieldConst(_.y + "abc", "pi")
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
 
             compileError("""
                 val haveY = HaveY("")
@@ -89,8 +81,7 @@ object DslSpec extends TestSuite {
                   .into[Foo]
                   .withFieldConst(cc => haveY.y, "pi")
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
           }
         }
 
@@ -148,16 +139,10 @@ object DslSpec extends TestSuite {
 
           "pass when selector is valid" - {
 
-            Bar(3, (3.14, 3.14))
-              .into[Foo]
-              .withFieldComputed(_.y, _.x.toString)
-              .transform ==>
+            Bar(3, (3.14, 3.14)).into[Foo].withFieldComputed(_.y, _.x.toString).transform ==>
               Foo(3, "3", (3.14, 3.14))
 
-            Bar(3, (3.14, 3.14))
-              .into[Foo]
-              .withFieldComputed(cc => cc.y, _.x.toString)
-              .transform ==>
+            Bar(3, (3.14, 3.14)).into[Foo].withFieldComputed(cc => cc.y, _.x.toString).transform ==>
               Foo(3, "3", (3.14, 3.14))
           }
 
@@ -168,15 +153,13 @@ object DslSpec extends TestSuite {
                   .withFieldComputed(_.y, _.x.toString)
                   .withFieldComputed(_.z._1, _.z._1 * 10.0)
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
 
             compileError("""Bar(3, (3.14, 3.14))
                   .into[Foo]
                   .withFieldComputed(_.y + "abc", _.x.toString)
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
 
             compileError("""
                 val haveY = HaveY("")
@@ -184,8 +167,7 @@ object DslSpec extends TestSuite {
                   .into[Foo]
                   .withFieldComputed(cc => haveY.y, _.x.toString)
                   .transform
-                """)
-              .check("", "Invalid selector expression")
+                """).check("", "Invalid selector expression")
           }
         }
       }
@@ -219,26 +201,15 @@ object DslSpec extends TestSuite {
         }
 
         "another modifier is provided" - {
-          Foo(10)
-            .into[Bar]
-            .withFieldConst(_.y, 45L)
-            .transform ==>
+          Foo(10).into[Bar].withFieldConst(_.y, 45L).transform ==>
             Bar(10, 45L)
         }
 
         "default values are disabled and another modifier is provided" - {
-          Foo(10)
-            .into[Bar]
-            .disableDefaultValues
-            .withFieldConst(_.y, 45L)
-            .transform ==>
+          Foo(10).into[Bar].disableDefaultValues.withFieldConst(_.y, 45L).transform ==>
             Bar(10, 45L)
 
-          Foo(10)
-            .into[Bar]
-            .withFieldConst(_.y, 48L)
-            .disableDefaultValues
-            .transform ==>
+          Foo(10).into[Bar].withFieldConst(_.y, 48L).disableDefaultValues.transform ==>
             Bar(10, 48L)
         }
 
@@ -264,13 +235,11 @@ object DslSpec extends TestSuite {
       "not compile when default parameter values are disabled" - {
         compileError("""
           Foo(10).into[Bar].disableDefaultValues.transform
-        """)
-          .check("", "Chimney can't derive transformation from Foo to Bar")
+        """).check("", "Chimney can't derive transformation from Foo to Bar")
 
         compileError("""
           Baah(10, Foo(300)).into[Baahr].disableDefaultValues.transform
-        """)
-          .check("", "Chimney can't derive transformation from Baah to Baahr")
+        """).check("", "Chimney can't derive transformation from Baah to Baahr")
       }
     }
 
@@ -287,12 +256,8 @@ object DslSpec extends TestSuite {
         implicit def trans: Transformer[Option[Int], Either[Unit, Int]] = ageToWiekTransformer
 
         val user: User = User(1, "Kuba", Some(28))
-        val userPl = UserPL(1, "Kuba", Right(28))
-        user
-          .into[UserPL]
-          .withFieldRenamed(_.name, _.imie)
-          .withFieldRenamed(_.age, _.wiek)
-          .transform ==> userPl
+        val userPl     = UserPL(1, "Kuba", Right(28))
+        user.into[UserPL].withFieldRenamed(_.name, _.imie).withFieldRenamed(_.age, _.wiek).transform ==> userPl
 
       }
 
@@ -300,12 +265,8 @@ object DslSpec extends TestSuite {
         implicit def trans: Transformer[Option[Int], Either[Unit, Int]] = ageToWiekTransformer
 
         val user: User = User(1, "Kuba", None)
-        val userPl = UserPL(1, "Kuba", Left(()))
-        user
-          .into[UserPL]
-          .withFieldRenamed(_.name, _.imie)
-          .withFieldRenamed(_.age, _.wiek)
-          .transform ==> userPl
+        val userPl     = UserPL(1, "Kuba", Left(()))
+        user.into[UserPL].withFieldRenamed(_.name, _.imie).withFieldRenamed(_.age, _.wiek).transform ==> userPl
 
       }
 
@@ -315,8 +276,7 @@ object DslSpec extends TestSuite {
             user.into[UserPL].withFieldRenamed(_.name, _.imie)
                 .withFieldRenamed(_.age, _.wiek)
                 .transform
-          """)
-          .check("", "Chimney can't derive transformation from User to UserPL")
+          """).check("", "Chimney can't derive transformation from User to UserPL")
       }
     }
 
@@ -334,10 +294,7 @@ object DslSpec extends TestSuite {
       }
 
       "relabel fields with relabelling modifier" - {
-        Foo(10, "something")
-          .into[Bar]
-          .withFieldRenamed(_.y, _.z)
-          .transform ==>
+        Foo(10, "something").into[Bar].withFieldRenamed(_.y, _.z).transform ==>
           Bar(10, "something")
       }
 
@@ -348,8 +305,7 @@ object DslSpec extends TestSuite {
               .into[Bar]
               .withFieldRenamed(_.y + "abc", _.z)
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
 
         compileError("""
             val haveY = HaveY("")
@@ -357,16 +313,14 @@ object DslSpec extends TestSuite {
               .into[Bar]
               .withFieldRenamed(cc => haveY.y, _.z)
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
 
         compileError("""
             Foo(10, "something")
               .into[Bar]
               .withFieldRenamed(_.y, _.z + "abc")
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
 
         compileError("""
             val haveZ = HaveZ("")
@@ -374,16 +328,14 @@ object DslSpec extends TestSuite {
               .into[Bar]
               .withFieldRenamed(_.y, cc => haveZ.z)
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
 
         compileError("""
             Foo(10, "something")
               .into[Bar]
               .withFieldRenamed(_.y + "abc", _.z + "abc")
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
 
         compileError("""
             val haveY = HaveY("")
@@ -392,8 +344,7 @@ object DslSpec extends TestSuite {
               .into[Bar]
               .withFieldRenamed(cc => haveY.y, cc => haveZ.z)
               .transform
-          """)
-          .check("", "Invalid selector expression")
+          """).check("", "Invalid selector expression")
       }
 
       "not compile if relabelled - a wrong way" - {
@@ -409,7 +360,7 @@ object DslSpec extends TestSuite {
 
     "support value classes" - {
 
-      import VCDomain1._
+      import VCDomain1.*
 
       "transforming value class to a value" - {
 
@@ -441,11 +392,10 @@ object DslSpec extends TestSuite {
         compileError("""Some("foobar").into[None.type].transform""")
           .check("", "derivation from some: scala.Some to scala.None is not supported in Chimney!")
         case class BarNone(value: None.type)
-        compileError("""Foo("a").into[BarNone].transform""")
-          .check(
-            "",
-            "value: scala.None - can't derive transformation from value: java.lang.String in source type io.scalaland.chimney.DslSpec.Foo"
-          )
+        compileError("""Foo("a").into[BarNone].transform""").check(
+          "",
+          "value: scala.None - can't derive transformation from value: java.lang.String in source type io.scalaland.chimney.DslSpec.Foo",
+        )
       }
 
       "support automatically filling of scala.Unit" - {
@@ -458,11 +408,10 @@ object DslSpec extends TestSuite {
         Buzz("a").transformInto[FooBuzz] ==> FooBuzz(())
         NewBuzz("a", null.asInstanceOf[Unit]).transformInto[FooBuzz] ==> FooBuzz(null.asInstanceOf[Unit])
 
-        compileError("""Buzz("a").transformInto[ConflictingFooBuzz]""")
-          .check(
-            "",
-            "value: scala.Unit - can't derive transformation from value: java.lang.String in source type io.scalaland.chimney.DslSpec.Buzz"
-          )
+        compileError("""Buzz("a").transformInto[ConflictingFooBuzz]""").check(
+          "",
+          "value: scala.Unit - can't derive transformation from value: java.lang.String in source type io.scalaland.chimney.DslSpec.Buzz",
+        )
       }
 
       "support scala.util.Either" - {
@@ -549,7 +498,7 @@ object DslSpec extends TestSuite {
 
         Foobar(Some(1)).into[Foobar2].enableUnsafeOption.transform ==> Foobar2("1")
         NestedFoobar(Some(Foobar(Some(1)))).into[NestedFoobar2].enableUnsafeOption.transform ==> NestedFoobar2(
-          Foobar2("1")
+          Foobar2("1"),
         )
       }
 
@@ -577,25 +526,24 @@ object DslSpec extends TestSuite {
         case class Foobar(x: None.type)
         case class Foobar2(x: String)
 
-        compileError("""Foobar(None).into[Foobar2].enableUnsafeOption.transform""")
-          .check(
-            "",
-            "x: java.lang.String - can't derive transformation from x: scala.None in source type io.scalaland.chimney.DslSpec.Foobar"
-          )
+        compileError("""Foobar(None).into[Foobar2].enableUnsafeOption.transform""").check(
+          "",
+          "x: java.lang.String - can't derive transformation from x: scala.None in source type io.scalaland.chimney.DslSpec.Foobar",
+        )
       }
     }
 
     "support using method calls to fill values from target type" - {
       case class Foobar(param: String) {
-        val valField: String = "valField"
+        val valField: String          = "valField"
         lazy val lazyValField: String = "lazyValField"
-        def method1: String = "method1"
-        def method2: String = "method2"
-        def method3: String = "method3"
-        def method5: String = "method5"
-        def method4: String = "method4"
+        def method1: String           = "method1"
+        def method2: String           = "method2"
+        def method3: String           = "method3"
+        def method5: String           = "method5"
+        def method4: String           = "method4"
 
-        protected def protect: String = "protect"
+        protected def protect: String     = "protect"
         private[chimney] def priv: String = "priv"
       }
 
@@ -623,14 +571,14 @@ object DslSpec extends TestSuite {
 
       "method is disabled by default" - {
         case class Foobar5(
-            param: String,
-            valField: String,
-            lazyValField: String,
-            method1: String,
-            method2: String,
-            method3: String,
-            method4: String,
-            method5: String
+          param: String,
+          valField: String,
+          lazyValField: String,
+          method1: String,
+          method2: String,
+          method3: String,
+          method4: String,
+          method5: String,
         )
         compileError("""Foobar("param").into[Foobar5].transform""").check(
           "",
@@ -639,7 +587,7 @@ object DslSpec extends TestSuite {
           "method3: java.lang.String - no accessor named method3 in source type io.scalaland.chimney.DslSpec.Foobar",
           "method4: java.lang.String - no accessor named method4 in source type io.scalaland.chimney.DslSpec.Foobar",
           "method5: java.lang.String - no accessor named method5 in source type io.scalaland.chimney.DslSpec.Foobar",
-          "There are methods in io.scalaland.chimney.DslSpec.Foobar that might be used as accessors for `method1`, `method2`, `method3` and 2 other methods fields in io.scalaland.chimney.DslSpec.Foobar5. Consider using `.enableMethodAccessors`."
+          "There are methods in io.scalaland.chimney.DslSpec.Foobar that might be used as accessors for `method1`, `method2`, `method3` and 2 other methods fields in io.scalaland.chimney.DslSpec.Foobar5. Consider using `.enableMethodAccessors`.",
         )
       }
 
@@ -648,7 +596,7 @@ object DslSpec extends TestSuite {
           param = "param",
           valField = "valField",
           lazyValField = "lazyValField",
-          method1 = "method1"
+          method1 = "method1",
         )
       }
 
@@ -658,7 +606,7 @@ object DslSpec extends TestSuite {
         compileError("""Foobar("param").into[Foo2].enableMethodAccessors.transform""").check(
           "",
           "protect: java.lang.String - no accessor named protect in source type io.scalaland.chimney.DslSpec.Foobar",
-          "priv: java.lang.String - no accessor named priv in source type io.scalaland.chimney.DslSpec.Foobar"
+          "priv: java.lang.String - no accessor named priv in source type io.scalaland.chimney.DslSpec.Foobar",
         )
       }
     }
@@ -668,12 +616,9 @@ object DslSpec extends TestSuite {
       "enum types encoded as sealed hierarchies of case objects" - {
         "transforming from smaller to bigger enum" - {
 
-          (colors1.Red: colors1.Color)
-            .transformInto[colors2.Color] ==> colors2.Red
-          (colors1.Green: colors1.Color)
-            .transformInto[colors2.Color] ==> colors2.Green
-          (colors1.Blue: colors1.Color)
-            .transformInto[colors2.Color] ==> colors2.Blue
+          (colors1.Red: colors1.Color).transformInto[colors2.Color] ==> colors2.Red
+          (colors1.Green: colors1.Color).transformInto[colors2.Color] ==> colors2.Green
+          (colors1.Blue: colors1.Color).transformInto[colors2.Color] ==> colors2.Blue
         }
 
         "transforming from bigger to smaller enum" - {
@@ -681,25 +626,16 @@ object DslSpec extends TestSuite {
           def blackIsRed(b: colors2.Black.type): colors1.Color =
             colors1.Red
 
-          (colors2.Black: colors2.Color)
-            .into[colors1.Color]
-            .withCoproductInstance(blackIsRed)
-            .transform ==> colors1.Red
+          (colors2.Black: colors2.Color).into[colors1.Color].withCoproductInstance(blackIsRed).transform ==> colors1.Red
 
-          (colors2.Red: colors2.Color)
-            .into[colors1.Color]
-            .withCoproductInstance(blackIsRed)
-            .transform ==> colors1.Red
+          (colors2.Red: colors2.Color).into[colors1.Color].withCoproductInstance(blackIsRed).transform ==> colors1.Red
 
           (colors2.Green: colors2.Color)
             .into[colors1.Color]
             .withCoproductInstance(blackIsRed)
             .transform ==> colors1.Green
 
-          (colors2.Blue: colors2.Color)
-            .into[colors1.Color]
-            .withCoproductInstance(blackIsRed)
-            .transform ==> colors1.Blue
+          (colors2.Blue: colors2.Color).into[colors1.Color].withCoproductInstance(blackIsRed).transform ==> colors1.Blue
         }
 
         "transforming flat and deep enum" - {
@@ -722,8 +658,8 @@ object DslSpec extends TestSuite {
             List(
               t.p1.transformInto[shapes2.Point],
               t.p2.transformInto[shapes2.Point],
-              t.p3.transformInto[shapes2.Point]
-            )
+              t.p3.transformInto[shapes2.Point],
+            ),
           )
 
         def rectangleToPolygon(r: shapes1.Rectangle): shapes2.Shape =
@@ -732,8 +668,8 @@ object DslSpec extends TestSuite {
               r.p1.transformInto[shapes2.Point],
               shapes2.Point(r.p1.x, r.p2.y),
               r.p2.transformInto[shapes2.Point],
-              shapes2.Point(r.p2.x, r.p1.y)
-            )
+              shapes2.Point(r.p2.x, r.p1.y),
+            ),
           )
 
         val triangle: shapes1.Shape =
@@ -755,7 +691,7 @@ object DslSpec extends TestSuite {
             case t: shapes1.Triangle  => triangleToPolygon(t)
           }
           .transform ==> shapes2.Polygon(
-          List(shapes2.Point(0, 0), shapes2.Point(0, 4), shapes2.Point(6, 4), shapes2.Point(6, 0))
+          List(shapes2.Point(0, 0), shapes2.Point(0, 4), shapes2.Point(6, 4), shapes2.Point(6, 0)),
         )
       }
 
@@ -764,14 +700,11 @@ object DslSpec extends TestSuite {
         implicit val intToDoubleTransformer: Transformer[Int, Double] =
           (_: Int).toDouble
 
-        (shapes1
-          .Triangle(shapes1.Point(0, 0), shapes1.Point(2, 2), shapes1.Point(2, 0)): shapes1.Shape)
+        (shapes1.Triangle(shapes1.Point(0, 0), shapes1.Point(2, 2), shapes1.Point(2, 0)): shapes1.Shape)
           .transformInto[shapes3.Shape] ==>
           shapes3.Triangle(shapes3.Point(2.0, 0.0), shapes3.Point(2.0, 2.0), shapes3.Point(0.0, 0.0))
 
-        (shapes1
-          .Rectangle(shapes1.Point(0, 0), shapes1.Point(6, 4)): shapes1.Shape)
-          .transformInto[shapes3.Shape] ==>
+        (shapes1.Rectangle(shapes1.Point(0, 0), shapes1.Point(6, 4)): shapes1.Shape).transformInto[shapes3.Shape] ==>
           shapes3.Rectangle(shapes3.Point(0.0, 0.0), shapes3.Point(6.0, 4.0))
       }
 
@@ -798,24 +731,24 @@ object DslSpec extends TestSuite {
         val error = compileError(
           """(shapes1.Triangle(shapes1.Point(0, 0), shapes1.Point(2, 2), shapes1.Point(2, 0)): shapes1.Shape)
                .transformInto[shapes5.Shape]
-          """
+          """,
         )
 
         error.check(
           "",
           "coproduct instance Triangle of io.scalaland.chimney.examples.shapes5.Shape is ambiguous",
-          "coproduct instance Rectangle of io.scalaland.chimney.examples.shapes5.Shape is ambiguous"
+          "coproduct instance Rectangle of io.scalaland.chimney.examples.shapes5.Shape is ambiguous",
         )
 
         assert(
-          !error.msg.contains("coproduct instance Circle of io.scalaland.chimney.examples.shapes5.Shape is ambiguous")
+          !error.msg.contains("coproduct instance Circle of io.scalaland.chimney.examples.shapes5.Shape is ambiguous"),
         )
       }
     }
 
     "support polymorphic source/target objects and modifiers" - {
 
-      import Poly._
+      import Poly.*
 
       "monomorphic source to polymorphic target" - {
 
@@ -868,9 +801,7 @@ object DslSpec extends TestSuite {
       case class Foo(x: String)
       case class Bar(z: Double, y: Int, x: String)
 
-      val partialTransformer = Foo("abc")
-        .into[Bar]
-        .withFieldComputed(_.y, _.x.length)
+      val partialTransformer = Foo("abc").into[Bar].withFieldComputed(_.y, _.x.length)
 
       val transformer1 = partialTransformer.withFieldConst(_.z, 1.0)
       val transformer2 = partialTransformer.withFieldComputed(_.z, _.x.length * 2.0)
@@ -880,7 +811,7 @@ object DslSpec extends TestSuite {
     }
 
     "transform from non-case class to case class" - {
-      import NonCaseDomain._
+      import NonCaseDomain.*
 
       "support non-case classes inputs" - {
         val source = new ClassSource("test-id", "test-name")
@@ -892,7 +823,7 @@ object DslSpec extends TestSuite {
 
       "support trait inputs" - {
         val source: TraitSource = new TraitSourceImpl("test-id", "test-name")
-        val target = source.transformInto[CaseClassNoFlag]
+        val target              = source.transformInto[CaseClassNoFlag]
 
         target.id ==> source.id
         target.name ==> source.name
@@ -911,8 +842,7 @@ object DslSpec extends TestSuite {
 
       val expected = (0, 3.14, "pi")
 
-      Foo(0, 3.14, "pi")
-        .transformInto[(Int, Double, String)] ==> expected
+      Foo(0, 3.14, "pi").transformInto[(Int, Double, String)] ==> expected
 
       (0, 3.14, "pi").transformInto[Foo]
 
@@ -922,8 +852,7 @@ object DslSpec extends TestSuite {
 
         val expected = ((100, 2.71, "e"), false)
 
-        Bar(Foo(100, 2.71, "e"), baz = false)
-          .transformInto[((Int, Double, String), Boolean)] ==> expected
+        Bar(Foo(100, 2.71, "e"), baz = false).transformInto[((Int, Double, String), Boolean)] ==> expected
 
         ((100, 2.71, "e"), true).transformInto[Bar] ==>
           Bar(Foo(100, 2.71, "e"), baz = true)
@@ -933,29 +862,25 @@ object DslSpec extends TestSuite {
 
         compileError("""
           (0, "test").transformInto[Foo]
-        """)
-          .check(
-            "",
-            "source tuple scala.Tuple2 is of arity 2, while target type io.scalaland.chimney.DslSpec.Foo is of arity 3; they need to be equal!"
-          )
+        """).check(
+          "",
+          "source tuple scala.Tuple2 is of arity 2, while target type io.scalaland.chimney.DslSpec.Foo is of arity 3; they need to be equal!",
+        )
 
         compileError("""
           (10.5, "abc", 6).transformInto[Foo]
-        """)
-          .check("", "can't derive transformation")
+        """).check("", "can't derive transformation")
 
         compileError("""
           Foo(10, 36.6, "test").transformInto[(Double, String, Int, Float, Boolean)]
-        """)
-          .check(
-            "",
-            "source tuple io.scalaland.chimney.DslSpec.Foo is of arity 3, while target type scala.Tuple5 is of arity 5; they need to be equal!"
-          )
+        """).check(
+          "",
+          "source tuple io.scalaland.chimney.DslSpec.Foo is of arity 3, while target type scala.Tuple5 is of arity 5; they need to be equal!",
+        )
 
         compileError("""
           Foo(10, 36.6, "test").transformInto[(Int, Double, Boolean)]
-        """)
-          .check("", "can't derive transformation")
+        """).check("", "can't derive transformation")
       }
     }
 
@@ -965,9 +890,8 @@ object DslSpec extends TestSuite {
       case class Bar(x: Option[Bar])
 
       "defined by hand" - {
-        implicit def fooToBarTransformer: Transformer[Foo, Bar] = (foo: Foo) => {
-          Bar(foo.x.map(fooToBarTransformer.transform))
-        }
+        implicit def fooToBarTransformer: Transformer[Foo, Bar] =
+          (foo: Foo) => Bar(foo.x.map(fooToBarTransformer.transform))
 
         Foo(Some(Foo(None))).transformInto[Bar] ==> Bar(Some(Bar(None)))
       }
@@ -1012,7 +936,7 @@ object DslSpec extends TestSuite {
 
         ClassA(Some(List(ClassAA("l")))).into[ClassC].withFieldConst(_.other, "other").transform ==> ClassC(
           List(ClassBB("l")),
-          "other"
+          "other",
         )
 
         implicit val defined: Transformer[ClassA, ClassD] =
@@ -1027,9 +951,8 @@ object DslSpec extends TestSuite {
       class Source { def field1: Int = 100 }
       case class Target(field1: Int = 200, field2: Option[String] = Some("foo"))
 
-      implicit val transformerConfiguration = {
+      implicit val transformerConfiguration =
         TransformerConfiguration.default.enableOptionDefaultsToNone.enableMethodAccessors.disableDefaultValues
-      }
 
       "scoped config only" - {
 
@@ -1039,16 +962,9 @@ object DslSpec extends TestSuite {
 
       "scoped config overridden by instance flag" - {
 
-        (new Source)
-          .into[Target]
-          .disableMethodAccessors
-          .enableDefaultValues
-          .transform ==> Target(200, Some("foo"))
+        (new Source).into[Target].disableMethodAccessors.enableDefaultValues.transform ==> Target(200, Some("foo"))
 
-        (new Source)
-          .into[Target]
-          .enableDefaultValues
-          .transform ==> Target(100, Some("foo"))
+        (new Source).into[Target].enableDefaultValues.transform ==> Target(100, Some("foo"))
 
         (new Source)
           .into[Target]
@@ -1061,8 +977,7 @@ object DslSpec extends TestSuite {
 
         compileError("""
           (new Source).into[Target].disableOptionDefaultsToNone.transform
-        """)
-          .check("", "Chimney can't derive transformation from Source to Target")
+        """).check("", "Chimney can't derive transformation from Source to Target")
       }
     }
   }

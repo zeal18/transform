@@ -1,10 +1,15 @@
-package io.scalaland.chimney.cats
+package io.scalaland.chimney
 
-import cats.data.{NonEmptyChain, Validated, ValidatedNec}
-import io.scalaland.chimney.{TransformationError, Transformer, TransformerF}
-import io.scalaland.chimney.dsl._
-import io.scalaland.chimney.utils.OptionUtils._
-import utest._
+import _root_.cats.data.NonEmptyChain
+import _root_.cats.data.Validated
+import _root_.cats.data.ValidatedNec
+import io.scalaland.chimney.TransformationError
+import io.scalaland.chimney.Transformer
+import io.scalaland.chimney.TransformerF
+import io.scalaland.chimney.dsl.*
+import io.scalaland.chimney.utils.OptionUtils.*
+import utest.*
+import io.scalaland.chimney.cats.*
 
 object CatsValidatedErrorPathSpec extends TestSuite {
   val tests = Tests {
@@ -18,7 +23,7 @@ object CatsValidatedErrorPathSpec extends TestSuite {
         str =>
           Validated.fromOption(
             str.parseInt,
-            NonEmptyChain.one(TransformationError[String](s"Can't parse int from $str"))
+            NonEmptyChain.one(TransformationError[String](s"Can't parse int from $str")),
           )
 
       case class StringWrapper(str: String)
@@ -43,8 +48,8 @@ object CatsValidatedErrorPathSpec extends TestSuite {
               "Can't parse int from mmm on a",
               "Can't parse int from nnn on b",
               "Can't parse int from lll on c.d",
-              "Can't parse int from jjj on c.e"
-            )
+              "Can't parse int from jjj on c.e",
+            ),
           )
       }
 
@@ -58,8 +63,8 @@ object CatsValidatedErrorPathSpec extends TestSuite {
             NonEmptyChain(
               "Can't parse int from a on list(0)",
               "Can't parse int from b on list(1)",
-              "Can't parse int from c on list(2)"
-            )
+              "Can't parse int from c on list(2)",
+            ),
           )
       }
 
@@ -100,27 +105,26 @@ object CatsValidatedErrorPathSpec extends TestSuite {
               "Can't parse int from c on map.keys(c)",
               "Can't parse int from d on map(c)",
               "Can't parse int from e on map2.keys(FooKey(e)).value",
-              "Can't parse int from f on map2(FooKey(e)).value"
-            )
+              "Can't parse int from f on map2(FooKey(e)).value",
+            ),
           )
 
         val error = compileError("""Map(FooKey("a") -> FooValue("b")).transformIntoF[V, Map[Double, Double]]""")
 
         error.check(
           "",
-          "derivation from k: io.scalaland.chimney.cats.CatsValidatedErrorPathSpec.FooKey to scala.Double is not supported in Chimney!"
+          "derivation from k: io.scalaland.chimney.cats.CatsValidatedErrorPathSpec.FooKey to scala.Double is not supported in Chimney!",
         )
 
         error.check(
           "",
-          "derivation from v: io.scalaland.chimney.cats.CatsValidatedErrorPathSpec.FooValue to scala.Double is not supported in Chimney!"
+          "derivation from v: io.scalaland.chimney.cats.CatsValidatedErrorPathSpec.FooValue to scala.Double is not supported in Chimney!",
         )
 
         Map(StringWrapper("a") -> StringWrapper("b"), StringWrapper("c") -> StringWrapper("d"))
-          .transformIntoF[V, Map[String, String]] ==> Validated
-          .Valid(
-            Map("a" -> "b", "c" -> "d")
-          )
+          .transformIntoF[V, Map[String, String]] ==> Validated.Valid(
+          Map("a" -> "b", "c" -> "d"),
+        )
       }
     }
   }
